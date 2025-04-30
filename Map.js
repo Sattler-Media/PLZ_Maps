@@ -2,7 +2,6 @@ import "https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js";
 
 const mittel_DE = [13.4090638258883, 52.51156577109141];
 
-// Estado para almacenar los PLZ seleccionados
 const selectedPlzCodes = new Set();
 
 async function init() {
@@ -10,7 +9,7 @@ async function init() {
   const map = new maplibregl.Map({
     container: 'map',
     center: mittel_DE,
-    style: 'https://demotiles.maplibre.org/style.json', // Alternativer Stil
+    style: 'https://demotiles.maplibre.org/style.json', 
     zoom: 13
   });
 
