@@ -1,12 +1,8 @@
-body {
-    overflow: hidden;
-    margin: 0;
-    padding: 0;
-    width: 100%;
-    height: 100vh;
-  }
-  
-  #map {
-    width: 100%;
-    height: 100%;
-  }
+#map {
+  position: absolute;
+  top: 20%;
+  left:20%;
+  width: 60%;
+  height:60%;
+  background: #f0f0f0; /* Color temporal para debug */
+}
