@@ -1,61 +1,53 @@
 import "https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js";
 
 const mittel_DE = [13.4090638258883, 52.51156577109141];
-
-const selectedPlzCodes = new Set();
+const selectedPostalCodes = new Set();
 
 async function init() {
-  // 1. Karte mit alternativem Stil erstellen
   const map = new maplibregl.Map({
     container: 'map',
     center: mittel_DE,
-    style: 'https://demotiles.maplibre.org/style.json', 
+    style: 'https://demotiles.maplibre.org/style.json',
     zoom: 13
   });
 
-  // 2. Überprüfen, ob der Basisstil geladen wurde
   map.on('load', () => {
-    console.log('Karte erfolgreich geladen!');
+    console.log('Map loaded successfully!');
     addPostalCodeLayers(map);
   });
 
-  // 3. Fehler beim Laden behandeln
   map.on('error', (e) => {
-    console.error('Fehler in der Karte:', e.error);
+    console.error('Error in the map:', e.error);
   });
 }
 
 async function addPostalCodeLayers(map) {
   try {
-    // 4. GeoJSON laden
     const response = await fetch('https://opendata.rhein-kreis-neuss.de/api/v2/catalog/datasets/nrw-postleitzahlen/exports/geojson');
     if (!response.ok) {
-      throw new Error(`Fehler beim Laden des GeoJSON: ${response.status} ${response.statusText}`);
+      throw new Error(`Error loading GeoJSON: ${response.status} ${response.statusText}`);
     }
     const geojsonData = await response.json();
 
-    // GeoJSON-Inhalt debuggen
-    console.log('GeoJSON-Daten:', geojsonData);
+    console.log('GeoJSON Data:', geojsonData);
 
-    // Überprüfen, ob die Features die Eigenschaft 'plz_code' enthalten
     if (!geojsonData.features || geojsonData.features.length === 0) {
-      throw new Error('Das GeoJSON enthält keine Features.');
+      throw new Error('The GeoJSON contains no features.');
     }
-    const hasPlzCode = geojsonData.features.some(feature => feature.properties && feature.properties.plz_code);
-    if (!hasPlzCode) {
-      throw new Error('Die Features des GeoJSON enthalten nicht die Eigenschaft "plz_code".');
+    const hasPostalCode = geojsonData.features.some(feature => feature.properties && feature.properties.plz_code);
+    if (!hasPostalCode) {
+      throw new Error('The features of the GeoJSON do not contain the property "plz_code".');
     }
 
-    // 5. Quelle und Layer hinzufügen
-    map.addSource('plz-germany', {
+    map.addSource('postal-codes-germany', {
       type: 'geojson',
       data: geojsonData
     });
 
     map.addLayer({
-      id: 'plz-borders',
+      id: 'PLZ-borders',
       type: 'line',
-      source: 'plz-germany',
+      source: 'PLZ-germany',
       paint: {
         'line-color': 'red',
         'line-width': 1
@@ -63,68 +55,101 @@ async function addPostalCodeLayers(map) {
     });
 
     map.addLayer({
-      id: 'plz-fill',
+      id: 'PLZ-fill',
       type: 'fill',
-      source: 'plz-germany',
+      source: 'PLZ-germany',
       paint: {
         'fill-color': [
           'case',
-          ['in', ['get', 'plz_code'], ['literal', Array.from(selectedPlzCodes)]],
-          '#ff0000', // Highlight-Farbe
-          '#888888'  // Standardfarbe
+          ['in', ['get', 'plz_code'], ['literal', Array.from(selectedPostalCodes)]],
+          '#ff0000',
+          '#888888'
         ],
         'fill-opacity': 0.4
       }
     });
 
     map.addLayer({
-      id: 'plz-labels',
+      id: 'PLZ-labels',
       type: 'symbol',
-      source: 'plz-germany',
+      source: 'PLZ-germany',
       layout: {
         'text-field': ['get', 'plz_code'],
         'text-size': 12
       }
     });
 
-    console.log('Layer erfolgreich hinzugefügt.');
+    console.log('Layers added successfully.');
 
-    // 6. Klick-Event hinzufügen
-    map.on('click', 'plz-fill', (e) => {
-      const plzCode = e.features[0].properties.plz_code;
-      console.log(`PLZ ${plzCode} wurde angeklickt.`);
+    map.on('click', 'PLZ-fill', (e) => {
+      const postalCode = e.features[0].properties.plz_code;
+      console.log(`Postal code ${postalCode} clicked.`);
 
-      // PLZ hinzufügen oder entfernen
-      if (selectedPlzCodes.has(plzCode)) {
-        selectedPlzCodes.delete(plzCode); // Entfernen, wenn bereits ausgewählt
+      if (selectedPostalCodes.has(postalCode)) {
+        selectedPostalCodes.delete(postalCode);
       } else {
-        selectedPlzCodes.add(plzCode); // Hinzufügen, wenn nicht ausgewählt
+        selectedPostalCodes.add(postalCode);
       }
 
-      // Aktualisieren der Farbe basierend auf den ausgewählten PLZ
-      map.setPaintProperty('plz-fill', 'fill-color', [
+      map.setPaintProperty('PLZ-fill', 'fill-color', [
         'case',
-        ['in', ['get', 'plz_code'], ['literal', Array.from(selectedPlzCodes)]],
-        '#ff0000', // Highlight-Farbe
-        '#888888'  // Standardfarbe
+        ['in', ['get', 'plz_code'], ['literal', Array.from(selectedPostalCodes)]],
+        '#ff0000',
+        '#888888'
       ]);
+
+      // Call the DHL API if at least one postal code is selected
+      if (selectedPostalCodes.size > 0) {
+        fetchDHLTargetingData(Array.from(selectedPostalCodes));
+      }
     });
 
-    // 7. Cursor ändern, wenn die Maus über einer Fläche ist
-    map.on('mouseenter', 'plz-fill', () => {
+    map.on('mouseenter', 'postal-code-fill', () => {
       map.getCanvas().style.cursor = 'pointer';
     });
 
-    map.on('mouseleave', 'plz-fill', () => {
+    map.on('mouseleave', 'postal-code-fill', () => {
       map.getCanvas().style.cursor = '';
     });
 
   } catch (error) {
-    console.error('Fehler beim Hinzufügen der Postleitzahlen-Layer:', error);
+    console.error('Error adding postal code layers:', error);
   }
 }
 
-// 6. Initialisieren
+// Function to call the DHL Print-Mailing Targeting API
+async function fetchDHLTargetingData(selectedPostalCodes) {
+  const apiKey = 'YOUR_API_KEY'; // Replace with  DHL API Key
+  const url = 'https://api.dhl.com/print-mailing/targeting'; // Base URL of the API
+
+  try {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'DHL-API-Key': apiKey
+      },
+      body: JSON.stringify({
+        postalCodes: selectedPostalCodes, // Send the selected postal codes
+        countryCode: 'DE' // Country code (Germany)
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`Error fetching data: ${response.status} ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    console.log('DHL Targeting Data:', data);
+
+    // Display the results in the console or on the map
+    alert(`DHL Targeting Data received: ${JSON.stringify(data)}`);
+  } catch (error) {
+    console.error('Error fetching targeting data:', error);
+  }
+}
+
+// Initialize the map
 init();
 
-document.body.style.userSelect = 'none'; /* Gültiger Wert */
+document.body.style.userSelect = 'none'; /* Valid value */
