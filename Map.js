@@ -1,6 +1,5 @@
 import "https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js";
 
-const mittel_DE = [13.4090638258883, 52.51156577109141];
 const selectedPostalCodes = new Set();
 
 async function getUserCenter() {
@@ -138,11 +137,11 @@ async function addPostalCodeLayers(map) {
       }
     });
 
-    map.on('mouseenter', 'postal-code-fill', () => {
+    map.on('mouseenter', 'PLZ-fill', () => {
       map.getCanvas().style.cursor = 'pointer';
     });
 
-    map.on('mouseleave', 'postal-code-fill', () => {
+    map.on('mouseleave', 'PLZ-fill', () => {
       map.getCanvas().style.cursor = '';
     });
 
