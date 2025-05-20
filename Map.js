@@ -3,12 +3,28 @@ import "https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js";
 const mittel_DE = [13.4090638258883, 52.51156577109141];
 const selectedPostalCodes = new Set();
 
+async function getUserCenter() {
+  const defaultCenter = [13.4090638258883, 52.51156577109141]; // Berlin
+  try {
+    const response = await fetch('https://ipapi.co/json/');
+    if (!response.ok) throw new Error('IP location fetch failed');
+    const data = await response.json();
+    if (data.longitude && data.latitude) {
+      return [parseFloat(data.longitude), parseFloat(data.latitude)];
+    }
+  } catch (e) {
+    console.warn('Could not get user location, using default center.');
+  }
+  return defaultCenter;
+}
+
 async function init() {
+  const center = await getUserCenter();
   const map = new maplibregl.Map({
     container: 'map',
-    center: mittel_DE,
-    style: 'https://demotiles.maplibre.org/style.json',
-    zoom: 13
+    center: center,
+    style: 'https://api.maptiler.com/maps/streets/style.json?key=4BNJO72dCI17waAmwZ2E',
+    zoom: 10
   });
 
   map.on('load', () => {
@@ -47,36 +63,47 @@ async function addPostalCodeLayers(map) {
     map.addLayer({
       id: 'PLZ-borders',
       type: 'line',
-      source: 'PLZ-germany',
+      source: 'postal-codes-germany',
       paint: {
         'line-color': 'red',
-        'line-width': 1
+        'line-width': 2
       }
     });
 
     map.addLayer({
       id: 'PLZ-fill',
       type: 'fill',
-      source: 'PLZ-germany',
+      source: 'postal-codes-germany',
       paint: {
         'fill-color': [
           'case',
           ['in', ['get', 'plz_code'], ['literal', Array.from(selectedPostalCodes)]],
-          '#ff0000',
-          '#888888'
+          '#ff0000', 
+          'rgba(0,0,0,0)' 
         ],
-        'fill-opacity': 0.4
+        'fill-opacity': [
+          'case',
+          ['in', ['get', 'plz_code'], ['literal', Array.from(selectedPostalCodes)]],
+          0.4, 
+          0 
+        ]
       }
     });
 
     map.addLayer({
       id: 'PLZ-labels',
       type: 'symbol',
-      source: 'PLZ-germany',
+      source: 'postal-codes-germany',
       layout: {
         'text-field': ['get', 'plz_code'],
         'text-size': 12
-      }
+      },
+      paint: {
+        'text-color': 'red',
+        'text-halo-color': 'white',
+        'text-halo-width': 2
+      },
+      minzoom: 9
     });
 
     console.log('Layers added successfully.');
@@ -95,7 +122,14 @@ async function addPostalCodeLayers(map) {
         'case',
         ['in', ['get', 'plz_code'], ['literal', Array.from(selectedPostalCodes)]],
         '#ff0000',
-        '#888888'
+        'rgba(0,0,0,0)'
+      ]);
+
+      map.setPaintProperty('PLZ-fill', 'fill-opacity', [
+        'case',
+        ['in', ['get', 'plz_code'], ['literal', Array.from(selectedPostalCodes)]],
+        0.4,
+        0
       ]);
 
       // Call the DHL API if at least one postal code is selected
@@ -119,7 +153,7 @@ async function addPostalCodeLayers(map) {
 
 // Function to call the DHL Print-Mailing Targeting API
 async function fetchDHLTargetingData(selectedPostalCodes) {
-  const apiKey = 'YOUR_API_KEY'; // Replace with  DHL API Key
+  const apiKey = 'API_KEY'; // Replace with  DHL API Key
   const url = 'https://api.dhl.com/print-mailing/targeting'; // Base URL of the API
 
   try {
