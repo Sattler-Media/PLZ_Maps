@@ -88,8 +88,7 @@ async function addPostalCodeLayers(map) {
         ]
       }
     });
-
-    // Crear una fuente solo con un feature por cada plz_code para las etiquetas
+   
     const uniquePlzCodes = new Set();
     const uniqueLabelFeatures = geojsonData.features.filter(f => {
       if (!uniquePlzCodes.has(f.properties.plz_code)) {
@@ -107,7 +106,7 @@ async function addPostalCodeLayers(map) {
       }
     });
 
-    // Capa de etiquetas usando la nueva fuente
+
     map.addLayer({
       id: 'PLZ-labels',
       type: 'symbol',
@@ -121,7 +120,7 @@ async function addPostalCodeLayers(map) {
         'text-halo-color': 'white',
         'text-halo-width': 2
       },
-      minzoom: 9
+      minzoom: 8
     });
 
     console.log('Layers added successfully.');
