@@ -66,7 +66,8 @@ async function addPostalCodeLayers(map) {
       paint: {
         'line-color': 'red',
         'line-width': 2
-      }
+      },
+      minzoom: 8 // Los bordes solo se ven a partir de zoom 8
     });
 
     map.addLayer({
@@ -120,7 +121,7 @@ async function addPostalCodeLayers(map) {
         'text-halo-color': 'white',
         'text-halo-width': 2
       },
-      minzoom: 8
+      minzoom: 9
     });
 
     console.log('Layers added successfully.');
