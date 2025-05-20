@@ -89,10 +89,29 @@ async function addPostalCodeLayers(map) {
       }
     });
 
+    // Crear una fuente solo con un feature por cada plz_code para las etiquetas
+    const uniquePlzCodes = new Set();
+    const uniqueLabelFeatures = geojsonData.features.filter(f => {
+      if (!uniquePlzCodes.has(f.properties.plz_code)) {
+        uniquePlzCodes.add(f.properties.plz_code);
+        return true;
+      }
+      return false;
+    });
+
+    map.addSource('postal-codes-germany-labels', {
+      type: 'geojson',
+      data: {
+        type: 'FeatureCollection',
+        features: uniqueLabelFeatures
+      }
+    });
+
+    // Capa de etiquetas usando la nueva fuente
     map.addLayer({
       id: 'PLZ-labels',
       type: 'symbol',
-      source: 'postal-codes-germany',
+      source: 'postal-codes-germany-labels',
       layout: {
         'text-field': ['get', 'plz_code'],
         'text-size': 12
