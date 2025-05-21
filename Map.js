@@ -38,7 +38,7 @@ async function init() {
 
 async function addPostalCodeLayers(map) {
   try {
-    const response = await fetch('https://opendata.rhein-kreis-neuss.de/api/v2/catalog/datasets/nrw-postleitzahlen/exports/geojson');
+    const response = await fetch('./plz-5stellig.geojson');
     if (!response.ok) {
       throw new Error(`Error loading GeoJSON: ${response.status} ${response.statusText}`);
     }
@@ -49,9 +49,9 @@ async function addPostalCodeLayers(map) {
     if (!geojsonData.features || geojsonData.features.length === 0) {
       throw new Error('The GeoJSON contains no features.');
     }
-    const hasPostalCode = geojsonData.features.some(feature => feature.properties && feature.properties.plz_code);
+    const hasPostalCode = geojsonData.features.some(feature => feature.properties && feature.properties.plz);
     if (!hasPostalCode) {
-      throw new Error('The features of the GeoJSON do not contain the property "plz_code".');
+      throw new Error('The features of the GeoJSON do not contain the property "plz".');
     }
 
     map.addSource('postal-codes-germany', {
@@ -67,7 +67,7 @@ async function addPostalCodeLayers(map) {
         'line-color': 'red',
         'line-width': 2
       },
-      minzoom: 8 // Los bordes solo se ven a partir de zoom 8
+      minzoom: 8 
     });
 
     map.addLayer({
@@ -77,13 +77,13 @@ async function addPostalCodeLayers(map) {
       paint: {
         'fill-color': [
           'case',
-          ['in', ['get', 'plz_code'], ['literal', Array.from(selectedPostalCodes)]],
+          ['in', ['get', 'plz'], ['literal', Array.from(selectedPostalCodes)]],
           '#ff0000', 
           'rgba(0,0,0,0)' 
         ],
         'fill-opacity': [
           'case',
-          ['in', ['get', 'plz_code'], ['literal', Array.from(selectedPostalCodes)]],
+          ['in', ['get', 'plz'], ['literal', Array.from(selectedPostalCodes)]],
           0.4, 
           0 
         ]
@@ -92,8 +92,8 @@ async function addPostalCodeLayers(map) {
    
     const uniquePlzCodes = new Set();
     const uniqueLabelFeatures = geojsonData.features.filter(f => {
-      if (!uniquePlzCodes.has(f.properties.plz_code)) {
-        uniquePlzCodes.add(f.properties.plz_code);
+      if (!uniquePlzCodes.has(f.properties.plz)) {
+        uniquePlzCodes.add(f.properties.plz);
         return true;
       }
       return false;
@@ -107,13 +107,12 @@ async function addPostalCodeLayers(map) {
       }
     });
 
-
     map.addLayer({
       id: 'PLZ-labels',
       type: 'symbol',
       source: 'postal-codes-germany-labels',
       layout: {
-        'text-field': ['get', 'plz_code'],
+        'text-field': ['get', 'plz'],
         'text-size': 12
       },
       paint: {
@@ -127,7 +126,7 @@ async function addPostalCodeLayers(map) {
     console.log('Layers added successfully.');
 
     map.on('click', 'PLZ-fill', (e) => {
-      const postalCode = e.features[0].properties.plz_code;
+      const postalCode = e.features[0].properties.plz;
       console.log(`Postal code ${postalCode} clicked.`);
 
       if (selectedPostalCodes.has(postalCode)) {
@@ -138,14 +137,14 @@ async function addPostalCodeLayers(map) {
 
       map.setPaintProperty('PLZ-fill', 'fill-color', [
         'case',
-        ['in', ['get', 'plz_code'], ['literal', Array.from(selectedPostalCodes)]],
+        ['in', ['get', 'plz'], ['literal', Array.from(selectedPostalCodes)]],
         '#ff0000',
         'rgba(0,0,0,0)'
       ]);
 
       map.setPaintProperty('PLZ-fill', 'fill-opacity', [
         'case',
-        ['in', ['get', 'plz_code'], ['literal', Array.from(selectedPostalCodes)]],
+        ['in', ['get', 'plz'], ['literal', Array.from(selectedPostalCodes)]],
         0.4,
         0
       ]);
