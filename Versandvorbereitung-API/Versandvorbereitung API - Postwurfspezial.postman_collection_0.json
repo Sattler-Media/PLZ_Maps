@@ -1,0 +1,1105 @@
+{
+	"info": {
+		"_postman_id": "c5cf03a6-8f16-4580-b1a3-b899bbb9c530",
+		"name": "Versandvorbereitung API - Postwurfspezial",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "16977264"
+	},
+	"item": [
+		{
+			"name": "Cost Calculation",
+			"item": [
+				{
+					"name": "Simple Cost Calculation",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"quantity\": 10000,\r\n  \"lengthInDeciMm\": 2200,\r\n  \"widthInDeciMm\": 1100,\r\n  \"heightInDeciMm\": 20,\r\n  \"weightInGram\": 98,\r\n  \"inductionDate\": \"2023-02-03T12:26:24.782Z\",\r\n  \"mailingItemTypePostcard\": false,\r\n  \"notEnabledForAutomation\": true\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/postwurfspezial/simplecostcalculation",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"postwurfspezial",
+								"simplecostcalculation"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Look-Up Resources",
+			"item": [
+				{
+					"name": "Get Dispatch Preparation Lookups",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/dispatchpreparationlookups",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"dispatchpreparationlookups"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Deutsche Post depots for induction",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/depotlookups",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"depotlookups"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Error Codes",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/dispatchpreparationerrorcodelookups",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"dispatchpreparationerrorcodelookups"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Master Data",
+			"item": [
+				{
+					"name": "Create Address",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token_dis}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"customerId\": {{customer_id_dis}},\r\n  \"ekp\": \"{{ownerEkp}}\",\r\n  \"name\": \"YOUR Name 04.01.2022\",\r\n  \"street\": \"YOUR Street 04.01.2022\",\r\n  \"zip\": \"31333\",\r\n  \"city\": \"YOUR CITY\",\r\n  \"country\": \"DE\",\r\n  \"customerContact\": \"YOUR Customer Contact\",\r\n  \"tel\": \"telefone\",\r\n  \"fax\": \"string\",\r\n  \"email\": \"it-csp@deutschepost.de\",\r\n  \"epost\": \"string\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/addresses",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"addresses"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Addresses",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token_dis}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/addresses?customerId={{customer_id_dis}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"addresses"
+							],
+							"query": [
+								{
+									"key": "customerId",
+									"value": "{{customer_id_dis}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add Default Payment Information",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token_dis}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n\t\"customerId\": {{customer_id_dis}},\r\n\t\"payerEkp\": \"{{ownerEkp}}\",\r\n\t\"entitledToDeductPreTax\": true,\r\n\t\"paymentMethod\": 3,\r\n\t\"cardNo\": \"2501001\",\r\n\t\"iban\": null,\r\n\t\"bic\": null,\r\n\t\"bankName\": null\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/defaultpayment",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"defaultpayment"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Default Payment Info",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token_dis}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/defaultpayment?customerId={{customer_id_dis}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"defaultpayment"
+							],
+							"query": [
+								{
+									"key": "customerId",
+									"value": "{{customer_id_dis}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add Default Induction",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token_dis}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"customerId\": {{customer_id_dis}},\r\n  \"inductionType\":1,\r\n  \"depotName\": null,\r\n  \"pickUpLocationStreet\": \"Musterstraße\",\r\n  \"pickUpLocationHouseNumber\":\"12\",\r\n  \"pickUpLocationZip\":\"12345\",\r\n  \"pickUpLocationCity\":\"Musterstadt\",\r\n  \"pickUpLocationCountry\":\"DE\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/defaultinduction",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"defaultinduction"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Default Induction",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token_dis}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/defaultinduction?customerId={{customer_id_dis}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"defaultinduction"
+							],
+							"query": [
+								{
+									"key": "customerId",
+									"value": "{{customer_id_dis}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Production Definition",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"var date = new Date();\r",
+									"var str = date.getFullYear() + \"-\" + (date.getMonth() + 1) + \"-\" + date.getDate() + \" \" +  date.getHours() + \":\" + date.getMinutes() + \":\" + date.getSeconds();\r",
+									"pm.environment.set(\"new_product_definition\", \"My Production Definition \" + str);\r",
+									"\r",
+									"// dialogpostKoop - Kooperationspartner bei großen Mengen"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token_dis}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"name\":\"{{new_product_definition}}\",\r\n  \"customerId\": {{customer_id_dis}},\r\n  \"mailingItemType\":2,\r\n  \"lengthInDeciMm\":2050,\r\n  \"widthInDeciMm\":1050,\r\n  \"heightInDeciMm\":10,\r\n  \"weightInGram\":7,\r\n  \"dialogpostKoop\":false,\r\n  \"productionDefinitionFabricationType\":1,\r\n  \"trays\":{\r\n    \"trayType\":1,\r\n    \"maxNumberItemsPerContainer\":450,\r\n    \"productionDefinitionOptimizationType\":1,\r\n    \"productionDefinitionNumberItemsDependentOptimizationType\":1,\r\n    \"minNumberItemsForContainerLr\":0,\r\n    \"minNumberItemsForContainerPlz\":0\r\n  },\r\n  \"bundles\": null,  \r\n  \"pallets\": {\r\n    \"usePallets\":true,\r\n    \"maxNumberMailingItemsPerPallet\":0,\r\n    \"alwaysProducePallets\":false,\r\n    \"traysStackable\":false,\r\n    \"emptyWeightInGram\":1000,\r\n    \"maxNumberTraysPerPallet\":28000,\r\n    \"maxNumberTraysPerLayer\":8,\r\n    \"productionDefinitionOptimizationType\":1,\r\n    \"minSavingToProduceExtraPallet\":0\r\n  }\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/productiondefinitions",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"productiondefinitions"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Production Definitions",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token_dis}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/productiondefinitions?customerId={{customer_id_dis}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"productiondefinitions"
+							],
+							"query": [
+								{
+									"key": "customerId",
+									"value": "{{customer_id_dis}}"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Selections (Targeting API)",
+			"item": [
+				{
+					"name": "Create Selection",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// product - POSTAKTUELL_DAILY_MAIL, POSTAKTUELL_ALL, POSTWURF_SPEZIAL \r",
+									"\r",
+									"// detailLevel - POSTAL_CODE, DELIVERY_DISTRICT, NEIGHBOURHOOD\r",
+									"\r",
+									"// Examples for neighbourhood, districtCode, postalCode, region, zone\r",
+									"// \"neighbourhoods\": [ \"51706\" ],\r",
+									"// \"districtCodes\":  [ \"52222-21\" ],\r",
+									"// \"postalCodes\":    [ \"48231\" ],\r",
+									"//  \"regions\":       [ \"64\"  ],\r",
+									"//  \"zones\":         [ \"6\"  ],"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"name\": \"Test selection\",\r\n  \"detailLevel\": \"POSTAL_CODE\",\r\n  \"product\": \"POSTWURF_SPEZIAL\",\r\n  \"areaCodes\": [\r\n    \"12049\", \"12051\", \"12053\", \"12057\" , \"12059\", \"12043\", \"12045\", \"12055\" \r\n  ],\r\n  \"filters\": [\r\n  {\r\n    \"id\": \"k_kaufkr_kombi\",\r\n     \"options\": [\"2\"]\r\n  },\r\n  {\r\n    \"id\": \"k_single_mz\",\r\n     \"options\": [\"5\",\"6\",\"7\"]\r\n  }\r\n  ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url_targeting_api}}/selections",
+							"host": [
+								"{{base_url_targeting_api}}"
+							],
+							"path": [
+								"selections"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get all supported filters",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token_dis}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "OPTIONS",
+						"header": [],
+						"url": {
+							"raw": "{{base_url_targeting_api}}/pws-filter",
+							"host": [
+								"{{base_url_targeting_api}}"
+							],
+							"path": [
+								"pws-filter"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get postcodes by Region",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token_dis}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"regions\": [\r\n    \"53\"\r\n  ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url_targeting_api}}/postal-code/search",
+							"host": [
+								"{{base_url_targeting_api}}"
+							],
+							"path": [
+								"postal-code",
+								"search"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get postcodes by Zone",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"zones\": [\r\n    \"1\"\r\n  ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url_targeting_api}}/postal-code/search",
+							"host": [
+								"{{base_url_targeting_api}}"
+							],
+							"path": [
+								"postal-code",
+								"search"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get postcodes by Neighbourhood",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"neighbourhoods\": [\r\n    \"40079\"\r\n  ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url_targeting_api}}/postal-code/search",
+							"host": [
+								"{{base_url_targeting_api}}"
+							],
+							"path": [
+								"postal-code",
+								"search"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get neighbourhoods by query",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url_targeting_api}}/search?query=Treptow",
+							"host": [
+								"{{base_url_targeting_api}}"
+							],
+							"path": [
+								"search"
+							],
+							"query": [
+								{
+									"key": "query",
+									"value": "Treptow"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get data of neighbourhood",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url_targeting_api}}/neighbourhood/40079",
+							"host": [
+								"{{base_url_targeting_api}}"
+							],
+							"path": [
+								"neighbourhood",
+								"40079"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Processings",
+			"item": [
+				{
+					"name": "1. Define your target group",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"var date = new Date();\r",
+									"var str = date.getFullYear() + \"-\" + (date.getMonth() + 1) + \"-\" + date.getDate() + \" \" +  date.getHours() + \":\" + date.getMinutes() + \":\" + date.getSeconds();\r",
+									"pm.environment.set(\"new_name_selection\", \"Selection \" + str);\r",
+									"\r",
+									"// product - POSTAKTUELL_DAILY_MAIL, POSTAKTUELL_ALL, POSTWURF_SPEZIAL \r",
+									"\r",
+									"// detailLevel - POSTAL_CODE, DELIVERY_DISTRICT, NEIGHBOURHOOD\r",
+									"\r",
+									"// Examples for neighbourhood, districtCode, postalCode, region, zone\r",
+									"// \"neighbourhoods\": [ \"51706\" ],\r",
+									"// \"districtCodes\":  [ \"52222-21\" ],\r",
+									"// \"postalCodes\":    [ \"48231\" ],\r",
+									"//  \"regions\":       [ \"64\"  ],\r",
+									"//  \"zones\":         [ \"6\"  ],"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonResponse = JSON.parse(responseBody);\r",
+									"pm.environment.set(\"id_selection_PWSP\", jsonResponse.id);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token_dis}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"name\": \"{{new_name_selection}}\",\r\n  \"detailLevel\": \"POSTAL_CODE\",\r\n  \"product\": \"POSTWURF_SPEZIAL\",\r\n  \"areaCodes\": [\r\n    \"12049\", \"12051\", \"12053\", \"12057\" , \"12059\", \"12043\", \"12045\", \"12055\" \r\n  ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url_targeting_api}}/customers/{{customer_id_dis}}/selections",
+							"host": [
+								"{{base_url_targeting_api}}"
+							],
+							"path": [
+								"customers",
+								"{{customer_id_dis}}",
+								"selections"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "2. Create a processing using your target group selection id",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonResponse = JSON.parse(responseBody);\r",
+									"pm.environment.set(\"id_processing_PWSP\", jsonResponse.id);"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"var date = new Date();\r",
+									"var str = date.getFullYear() + \"-\" + (date.getMonth() + 1) + \"-\" + date.getDate() + \" \" +  date.getHours() + \":\" + date.getMinutes() + \":\" + date.getSeconds();\r",
+									"pm.environment.set(\"new_description_processing_PWSP\", \"PWSP Mailing \" + str);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token_dis}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"customerId\": {{customer_id_dis}},\r\n  \"description\": \"{{new_description_processing_PWSP}}\",\r\n  \"simulation\": false,\r\n  \"targetGroupSelectionId\": \"{{id_selection_PWSP}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/postwurfspezial/processings",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"postwurfspezial",
+								"processings"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "3. Add information about the mailing",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// goGreen - climate-neutral shipping(Klimaneutrale Zustellung)\r",
+									"\r",
+									"// trackMatch - will indicate how many mailing items are currently in the sorting and therefore will \r",
+									"// be very likely be dispatched the very next day.\r",
+									"\r",
+									"// targetAudience - \"id\": 0, \"label\": \"Nicht angegeben\"     },\r",
+									"//                  \"id\": 1, \"label\": \"Neuer Kunde\"\r",
+									"//                  \"id\": 2, \"label\": \"Bestehender Kunde\"\r",
+									"\r",
+									"// entitledToDeductPreTax - Specifies whether the originator of this mailing is entitled to\r",
+									"//            deduct pre-tax. If he is, net costs will be minimized. If he is not,\r",
+									"//            gross costs will be minimized."
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token_dis}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"customerId\": {{customer_id_dis}},\r\n  \"inductionDate\": \"2023-09-17T13:14:50.704Z\",\r\n  \"productionDefinition\": 324,\r\n  \"originatorEkp\": \"{{ownerEkp}}\",\r\n  \"submitterEkp\": \"{{ownerEkp}}\",\r\n  \"definition\": {\r\n    \"greeting\": \"An die Bewohner des Hauses\",\r\n    \"targetAudience\": 0,\r\n    \"goGreen\": false,\r\n    \"trackMatch\": false,\r\n    \"accountingInfoText\": \"Abnahme Aufgabe Postwurfspezial\",\r\n    \"createDocumentTypes\": [1,2,3,4,5]\r\n  },\r\n  \"payment\": {\r\n    \"payerEkp\": \"{{ownerEkp}}\",\r\n    \"entitledToDeductPreTax\": true,\r\n    \"paymentMethod\": 3,\r\n    \"cardNo\": \"2501001\",\r\n    \"iban\": null,\r\n    \"bic\": null,\r\n    \"bankName\": null\r\n  },\r\n  \"induction\": null\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/postwurfspezial/processings/{{id_processing_PWSP}}/mailing",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"postwurfspezial",
+								"processings",
+								"{{id_processing_PWSP}}",
+								"mailing"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "4. Release your processing",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token_dis}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/postwurfspezial/processings/{{id_processing_PWSP}}/release?customerId={{customer_id_dis}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"postwurfspezial",
+								"processings",
+								"{{id_processing_PWSP}}",
+								"release"
+							],
+							"query": [
+								{
+									"key": "customerId",
+									"value": "{{customer_id_dis}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Processing Status",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token_dis}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/postwurfspezial/processings/{{id_processing_PWSP}}?customerId={{customer_id_dis}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"postwurfspezial",
+								"processings",
+								"{{id_processing_PWSP}}"
+							],
+							"query": [
+								{
+									"key": "customerId",
+									"value": "{{customer_id_dis}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Results",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token_dis}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/postwurfspezial/processings/{{id_processing_PWSP}}/results?customerId={{customer_id_dis}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"postwurfspezial",
+								"processings",
+								"{{id_processing_PWSP}}",
+								"results"
+							],
+							"query": [
+								{
+									"key": "customerId",
+									"value": "{{customer_id_dis}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Resulting Mailing Items",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token_dis}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/postwurfspezial/processings/{{id_processing_PWSP}}/results/mailingitems?customerId={{customer_id_dis}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"postwurfspezial",
+								"processings",
+								"{{id_processing_PWSP}}",
+								"results",
+								"mailingitems"
+							],
+							"query": [
+								{
+									"key": "customerId",
+									"value": "{{customer_id_dis}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Result Postage Information",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token_dis}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/postwurfspezial/processings/{{id_processing_PWSP}}/results/postage?customerId={{customer_id_dis}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"postwurfspezial",
+								"processings",
+								"{{id_processing_PWSP}}",
+								"results",
+								"postage"
+							],
+							"query": [
+								{
+									"key": "customerId",
+									"value": "{{customer_id_dis}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Logs",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token_dis}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/postwurfspezial/processings/{{id_processing_PWSP}}/log?customerId={{customer_id_dis}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"postwurfspezial",
+								"processings",
+								"{{id_processing_PWSP}}",
+								"log"
+							],
+							"query": [
+								{
+									"key": "customerId",
+									"value": "{{customer_id_dis}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Order Records",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token_dis}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/orderrecords?customerId={{customer_id_dis}}&dateto=2022-07-26&datefrom=2022-04-20",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"orderrecords"
+							],
+							"query": [
+								{
+									"key": "customerId",
+									"value": "{{customer_id_dis}}"
+								},
+								{
+									"key": "dateto",
+									"value": "2022-07-26"
+								},
+								{
+									"key": "datefrom",
+									"value": "2022-04-20"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Get Access Token",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsonResponse = JSON.parse(responseBody);\r",
+							"pm.environment.set(\"access_token_dis\", jsonResponse.jwtToken);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"username\": \"{{username}}\",\r\n  \"password\": \"{{password}}\",\r\n  \"locale\": \"de\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url_auth}}/authentication/businesslogin",
+					"host": [
+						"{{base_url_auth}}"
+					],
+					"path": [
+						"authentication",
+						"businesslogin"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

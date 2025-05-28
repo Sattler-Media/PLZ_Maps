@@ -127,8 +127,6 @@ async function addPostalCodeLayers(map) {
 
     map.on('click', 'PLZ-fill', (e) => {
       const postalCode = e.features[0].properties.plz;
-      console.log(`Postal code ${postalCode} clicked.`);
-
       if (selectedPostalCodes.has(postalCode)) {
         selectedPostalCodes.delete(postalCode);
       } else {
@@ -149,10 +147,8 @@ async function addPostalCodeLayers(map) {
         0
       ]);
 
-      // Call the DHL API if at least one postal code is selected
-      if (selectedPostalCodes.size > 0) {
-        fetchDHLTargetingData(Array.from(selectedPostalCodes));
-      }
+      // Actualiza la suma de einwohner en el input
+      updateEinwohnerSum(geojsonData, selectedPostalCodes);
     });
 
     map.on('mouseenter', 'PLZ-fill', () => {
@@ -198,6 +194,16 @@ async function fetchDHLTargetingData(selectedPostalCodes) {
   } catch (error) {
     console.error('Error fetching targeting data:', error);
   }
+}
+
+function updateEinwohnerSum(geojsonData, selectedPostalCodes) {
+  let einwohnerSum = 0;
+  geojsonData.features.forEach(feature => {
+    if (selectedPostalCodes.has(feature.properties.plz)) {
+      einwohnerSum += Number(feature.properties.einwohner) || 0;
+    }
+  });
+  document.getElementById('Einwohner').value = einwohnerSum;
 }
 
 // Initialize the map
