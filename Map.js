@@ -210,6 +210,24 @@ async function addPostalCodeLayers(mapInstance) {
       maxzoom: 8
     });
 
+    // --- Selektions-Layer für alle Zoomstufen ---
+    map.addSource('plz-selected', {
+      type: 'geojson',
+      data: { type: 'FeatureCollection', features: [] }
+    });
+    map.addLayer({
+      id: 'PLZ-selected',
+      type: 'fill',
+      source: 'plz-selected',
+      paint: {
+        'fill-color': '#FFD700', // Goldgelb
+        'fill-opacity': 0.6
+      },
+      minzoom: 0,
+      maxzoom: 24,
+      layout: { visibility: 'none' } // <-- Startet unsichtbar
+    });
+
     // Klick-Events für die Layer
     map.on('click', 'PLZ-fill', onPlzFillClick);
     map.on('click', 'PLZ3-fill', onPlz3FillClick);
@@ -218,12 +236,27 @@ async function addPostalCodeLayers(mapInstance) {
     // Zoom-Event für Layer-Umschaltung
     map.on('zoom', () => {
       refreshSelectedFills();
+      if (checkform && checkform.checked) updateSelectedPlzLayer();
       updateEinwohnerSumTotal();
     });
 
     // Initiales Styling und Einwohner-Summe
     refreshSelectedFills();
     updateEinwohnerSumTotal();
+
+    // Checkbox-Listener für Sichtbarkeit des Selektions-Layers
+    const checkform = document.getElementById('checkDefault');
+    if (checkform) {
+      checkform.addEventListener('change', function(e) {
+        const visible = e.target.checked ? 'visible' : 'none';
+        map.setLayoutProperty('PLZ-selected', 'visibility', visible);
+        if (e.target.checked) {
+          updateSelectedPlzLayer();
+        }
+      });
+      // Initialzustand: Layer bleibt unsichtbar
+      map.setLayoutProperty('PLZ-selected', 'visibility', 'none');
+    }
 
   } catch (error) {
     console.error('Fehler beim Hinzufügen der PLZ-Layer:', error);
@@ -239,6 +272,7 @@ function onPlzFillClick(e) {
     selectedPostalCodes.add(postalCode);
   }
   refreshSelectedFills();
+  updateSelectedPlzLayer();
   updateEinwohnerSumTotal();
 }
 
@@ -251,6 +285,7 @@ function onPlz3FillClick(e) {
     selectedPostalCodes3.add(postalCode3);
   }
   refreshSelectedFills();
+  updateSelectedPlzLayer();
   updateEinwohnerSumTotal();
 }
 
@@ -263,6 +298,7 @@ function onPlz2FillClick(e) {
     selectedPostalCodes2.add(postalCode2);
   }
   refreshSelectedFills();
+  updateSelectedPlzLayer();
   updateEinwohnerSumTotal();
 }
 
@@ -304,6 +340,30 @@ function refreshSelectedFills() {
     0.4,
     0.3
   ]);
+}
+
+// Aktualisiert den Layer für immer sichtbare Selektion
+function updateSelectedPlzLayer() {
+  const selectedFeatures = [];
+  if (geojsonData) {
+    geojsonData.features.forEach(f => {
+      if (selectedPostalCodes.has(f.properties.plz)) selectedFeatures.push(f);
+    });
+  }
+  if (geojsonData3) {
+    geojsonData3.features.forEach(f => {
+      if (selectedPostalCodes3.has(f.properties.plz)) selectedFeatures.push(f);
+    });
+  }
+  if (geojsonData2) {
+    geojsonData2.features.forEach(f => {
+      if (selectedPostalCodes2.has(f.properties.plz)) selectedFeatures.push(f);
+    });
+  }
+  map.getSource('plz-selected').setData({
+    type: 'FeatureCollection',
+    features: selectedFeatures
+  });
 }
 
 // Summiert die Einwohner aus allen Layern und zeigt sie im Input an
