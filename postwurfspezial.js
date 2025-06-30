@@ -27,14 +27,15 @@ async function getValidApiKey(username, password, locale) {
 // 3. Deine Preisabfrage nutzt getValidApiKey
 async function getPostwurfspezialPreis(plz, menge, produkt, username, password, locale = 'de') {
   const token = await getValidApiKey(username, password, locale);
-  const url = 'https://api.deutschepost.de/postwurfspezial/v1/prices'; // Passe ggf. an
+  const url = 'https://api-uat-vzen.dhl.com/post/advertising/print-mailing/dispatchpreparation/v1/postwurfspezial/simplecostcalculation'; // Passe ggf. an
   const body = { plz, menge, produkt };
 
   const response = await fetch(url, {
     method: 'POST',
     headers: {
       'Authorization': `Bearer ${token}`,
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
+      'Accept': 'application/json'
     },
     body: JSON.stringify(body)
   });
