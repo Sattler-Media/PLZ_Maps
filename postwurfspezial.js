@@ -12,12 +12,12 @@ let apiKeyExpiresAt = 0;
 async function fetchApiKey() {
   const response = await fetch('https://api-uat-vzen.dhl.com/post/advertising/print-mailing/user/v1/authentication/businesslogin', { 
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json'},
+    headers: { 'Content-Type': 'application/json'},
     body: JSON.stringify({ username: USERNAME, password: PASSWORD, locale: LOCALE })
   });
   if (!response.ok) throw new Error('Login fehlgeschlagen');
-  const data = await response.json();
-  apiKey = data.token; 
+  const data = await response.json();  
+  apiKey = data.jwtToken; 
   apiKeyExpiresAt = Date.now() + (14 * 60 * 1000); // 14 min gültig
 }
 
@@ -44,6 +44,7 @@ async function getPostwurfspezialPreis(
   const token = await getValidApiKey();
   const url = 'https://api-uat-vzen.dhl.com/post/advertising/print-mailing/dispatchpreparation/v1/postwurfspezial/simplecostcalculation';
 
+  // Usa los parámetros recibidos
   const body = {
     quantity,
     lengthInDeciMm,
@@ -56,17 +57,21 @@ async function getPostwurfspezialPreis(
     frankingType
   };
 
+  console.log('Body sent:', JSON.stringify(body, null, 2));
+
   const response = await fetch(url, {
     method: 'POST',
     headers: {
       'Authorization': `Bearer ${token}`,
-      'Content-Type': 'application/json',
-      'Accept': 'application/json'
+      'Content-Type': 'application/json',      
     },
     body: JSON.stringify(body)
   });
 
-  if (!response.ok) throw new Error(`Fehler: ${response.status} ${response.statusText}`);
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`Fehler: ${response.status} - ${errorText}`);
+  }
   const data = await response.json();
 
   return {
@@ -80,15 +85,15 @@ async function getPostwurfspezialPreis(
 (async () => {
   try {
     const result = await getPostwurfspezialPreis(
-      32331,         // quantity
-      2200,          // lengthInDeciMm
-      1100,          // widthInDeciMm
+      4000,         // quantity
+      2200,         // lengthInDeciMm
+      1100,         // widthInDeciMm
       20,            // heightInDeciMm
-      20,            // weightInGram
-      "2025-12-03T12:26:24.782Z", // inductionDate
-      false,         // mailingItemTypePostcard
-      false,         // notEnabledForAutomation
-      1              // frankingType
+      98,           // weightInGram
+      "2025-12-03T12:26:24.782Z", // inductionDate (prueba con una fecha más cercana)
+      false,        // mailingItemTypePostcard
+      false,        // notEnabledForAutomation
+      1             // frankingType
     );
     console.log('Kosten gesamt:', result.costs, 'EUR-Cent');
     console.log('Porto gesamt:', result.postageTotal, 'EUR-Cent');
