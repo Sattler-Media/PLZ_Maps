@@ -1,14 +1,19 @@
 import fetch from 'node-fetch';
 
+// --- Constantes de autenticación ---
+const USERNAME = 'dis_UATTimoKolbe';
+const PASSWORD = 'J!RsGy7IY2-wu_G!';
+const LOCALE = 'de';
+
 let apiKey = null;
 let apiKeyExpiresAt = 0;
 
 // 1. Login-Funktion (nur für Token)
-async function fetchApiKey(username, password, locale = 'de') {
+async function fetchApiKey() {
   const response = await fetch('https://api-uat-vzen.dhl.com/post/advertising/print-mailing/user/v1/authentication/businesslogin', { 
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'Accept': 'application/json'},
-    body: JSON.stringify({ username, password, locale })
+    body: JSON.stringify({ username: USERNAME, password: PASSWORD, locale: LOCALE })
   });
   if (!response.ok) throw new Error('Login fehlgeschlagen');
   const data = await response.json();
@@ -17,9 +22,9 @@ async function fetchApiKey(username, password, locale = 'de') {
 }
 
 // 2. Funktion, die immer einen gültigen Token liefert
-async function getValidApiKey(username, password, locale) {
+async function getValidApiKey() {
   if (!apiKey || Date.now() > apiKeyExpiresAt) {
-    await fetchApiKey(username, password, locale);
+    await fetchApiKey();
   }
   return apiKey;
 }
@@ -34,12 +39,9 @@ async function getPostwurfspezialPreis(
   inductionDate,
   mailingItemTypePostcard,
   notEnabledForAutomation,
-  frankingType,
-  username,
-  password,
-  locale = 'de'
+  frankingType
 ) {
-  const token = await getValidApiKey(username, password, locale);
+  const token = await getValidApiKey();
   const url = 'https://api-uat-vzen.dhl.com/post/advertising/print-mailing/dispatchpreparation/v1/postwurfspezial/simplecostcalculation';
 
   const body = {
@@ -67,11 +69,10 @@ async function getPostwurfspezialPreis(
   if (!response.ok) throw new Error(`Fehler: ${response.status} ${response.statusText}`);
   const data = await response.json();
 
-  // Devuelve el costo total y el franqueo total
   return {
     costs: data.costs,
     postageTotal: data.postwurfspezial?.postageTotal,
-    raw: data // Por si necesitas otros datos
+    raw: data
   };
 }
 
@@ -87,9 +88,7 @@ async function getPostwurfspezialPreis(
       "2025-12-03T12:26:24.782Z", // inductionDate
       false,         // mailingItemTypePostcard
       false,         // notEnabledForAutomation
-      1,             // frankingType
-      'dis_UATTimoKolbe', // username
-      'J!RsGy7IY2-wu_G!'  // password
+      1              // frankingType
     );
     console.log('Kosten gesamt:', result.costs, 'EUR-Cent');
     console.log('Porto gesamt:', result.postageTotal, 'EUR-Cent');
