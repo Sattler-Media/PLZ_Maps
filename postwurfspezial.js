@@ -1,6 +1,6 @@
 import fetch from 'node-fetch';
 
-// --- Constantes de autenticación ---
+// Konfiguration
 const USERNAME = 'dis_UATTimoKolbe';
 const PASSWORD = 'J!RsGy7IY2-wu_G!';
 const LOCALE = 'de';
@@ -17,7 +17,7 @@ async function fetchApiKey() {
   });
   if (!response.ok) throw new Error('Login fehlgeschlagen');
   const data = await response.json();  
-  apiKey = data.jwtToken; 
+  apiKey = data.jwtToken;
   apiKeyExpiresAt = Date.now() + (14 * 60 * 1000); // 14 min gültig
 }
 
@@ -44,7 +44,7 @@ async function getPostwurfspezialPreis(
   const token = await getValidApiKey();
   const url = 'https://api-uat-vzen.dhl.com/post/advertising/print-mailing/dispatchpreparation/v1/postwurfspezial/simplecostcalculation';
 
-  // Usa los parámetros recibidos
+  
   const body = {
     quantity,
     lengthInDeciMm,
@@ -90,7 +90,7 @@ async function getPostwurfspezialPreis(
       1100,         // widthInDeciMm
       20,            // heightInDeciMm
       98,           // weightInGram
-      "2025-12-03T12:26:24.782Z", // inductionDate (prueba con una fecha más cercana)
+      "2025-12-03T12:26:24.782Z", // inductionDate 
       false,        // mailingItemTypePostcard
       false,        // notEnabledForAutomation
       1             // frankingType
