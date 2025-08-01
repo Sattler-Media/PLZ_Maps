@@ -229,9 +229,9 @@ async function addPostalCodeLayers(mapInstance) {
     });
 
     // Klick-Events für die Layer
-    map.on('click', 'PLZ-fill', onPlzFillClick);
-    map.on('click', 'PLZ3-fill', onPlz3FillClick);
+    map.on('click', 'PLZ-fill', onPlzFillClick);   
     map.on('click', 'PLZ2-fill', onPlz2FillClick);
+    map.on('click', 'PLZ3-fill', onPlz3FillClick);
 
     // Zoom-Event für Layer-Umschaltung
     map.on('zoom', () => {
