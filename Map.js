@@ -369,27 +369,42 @@ function updateSelectedPlzLayer() {
 // Summiert die Einwohner aus allen Layern und zeigt sie im Input an
 function updateEinwohnerSumTotal() {
   let einwohnerSum = 0;
+
+  const selected5 = Array.from(selectedPostalCodes);
+  const selected3 = Array.from(selectedPostalCodes3);
+  const selected2 = Array.from(selectedPostalCodes2);
+
+  const isContained = (plz, higherLevelSet) => {
+    return higherLevelSet.some(higherPlz => plz.startsWith(higherPlz));
+  };
+
   if (geojsonData) {
     geojsonData.features.forEach(feature => {
-      if (selectedPostalCodes.has(feature.properties.plz)) {
+      const plz = feature.properties.plz;
+      if (selected5.includes(plz) && !isContained(plz, selected3) && !isContained(plz, selected2)) {
         einwohnerSum += Number(feature.properties.einwohner) || 0;
       }
     });
   }
+
   if (geojsonData3) {
     geojsonData3.features.forEach(feature => {
-      if (selectedPostalCodes3.has(feature.properties.plz)) {
+      const plz = feature.properties.plz;
+      if (selected3.includes(plz) && !isContained(plz, selected2)) {
         einwohnerSum += Number(feature.properties.einwohner) || 0;
       }
     });
   }
+
   if (geojsonData2) {
     geojsonData2.features.forEach(feature => {
-      if (selectedPostalCodes2.has(feature.properties.plz)) {
+      const plz = feature.properties.plz;
+      if (selected2.includes(plz)) {
         einwohnerSum += Number(feature.properties.einwohner) || 0;
       }
     });
   }
+
   const einwohnerInput = document.getElementById('Einwohner');
   if (einwohnerInput) einwohnerInput.value = einwohnerSum;
 }
