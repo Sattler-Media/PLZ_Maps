@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>Preisberechnung</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    label, select, input { display: block; margin: 10px 0; }
+    #preis-form { max-width: 600px; }
+  </style>
+</head>
+<body>  
+
+    <div id="map" style="width: 100%; height: 600px; margin-top: 20px;"></div>
+  <h1>Versandoptionen</h1>
+
+  <div id="preis-form">
+    <h2>Preisberechnung</h2>
+
+    <label for="versandTyp">Versandtyp:</label>
+    <select id="versandTyp">
+      <option value="postaktuell">Postaktuell</option>
+      <option value="postwurfsp">Postwurf Spezial</option>
+    </select>
+
+    <label for="gewicht">Gewicht (g):</label>
+    <input type="number" id="gewicht" value="50">
+
+    <label for="einlieferung">Einlieferungsdatum:</label>
+    <input type="date" id="einlieferung">
+
+    <label for="produktVariante">Produktvariante:</label>
+    <input type="number" id="produktVariante" value="1">
+
+    <label for="bezirksAuswahl">Bezirksauswahl:</label>
+    <select id="bezirksAuswahl">
+      <option value="true">Ja</option>
+      <option value="false">Nein</option>
+    </select>
+
+    <h3>Postwurf Spezial Optionen</h3>
+
+    <label for="laenge">Länge (dm):</label>
+    <input type="number" id="laenge" min="1000" max="5000" required />
+
+    <label for="breite">Breite (dm):</label>
+    <input type="number" id="breite" min="700" max="3000" required />
+
+    <label for="hoehe">Höhe (dm):</label>
+    <input type="number" id="hoehe" min="1" max="500" required />
+
+    <label for="postkarte">Postkarte:</label>
+    <select id="postkarte">
+      <option value="true">Ja</option>
+      <option value="false">Nein</option>
+    </select>
+
+    <label for="automation">Automatisierung:</label>
+    <select id="automation">
+      <option value="true">Ja</option>
+      <option value="false">Nein</option>
+    </select>
+
+    <label for="frankierung">Frankierungstyp:</label>
+    <input type="number" id="frankierung" value="1">
+
+    <h3>Ergebnisse</h3>
+    <label for="Einwohner">Einwohner:</label>
+    <input type="number" id="Einwohner" readonly>
+
+    <label for="Preis">Preis:</label>
+    <input type="number" id="Preis" readonly>
+  </div>
+  
+   <script type="module" src="Map.js"></script>
+  <script type="module" src="preisHandler.js"></script>
+</body>
+</html>

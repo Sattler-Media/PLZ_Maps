@@ -1,0 +1,11 @@
+{
+  "name": "dhl-frontend",
+  "version": "1.0.0",
+  "description": "Frontend para DHL Preisberechnung",
+  "scripts": {
+    "start": "live-server --port=8080 --open=index.html"
+  },
+  "devDependencies": {
+    "live-server": "^1.2.2"
+  }
+}
