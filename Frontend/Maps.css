@@ -3,6 +3,12 @@ html, body {
   margin: 0;
   padding: 0;
 }
+body {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
 
 #map {
   width: 60%;
@@ -20,9 +26,3 @@ html, body {
   width: 60%;
 }
 
-body {
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  user-select: none;
-}
