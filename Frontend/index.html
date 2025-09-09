@@ -2,21 +2,16 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8">
-  <title>Preisberechnung</title>
-  <style>
-    body { font-family: Arial, sans-serif; margin: 20px; }
-    label, select, input { display: block; margin: 10px 0; }
-    #preis-form { max-width: 600px; }
-  </style>
+  <link rel="stylesheet" href="Maps.css" />
+  <title>Preisberechnung</title>  
 </head>
-<body>  
-
-    <div id="map" style="width: 100%; height: 600px; margin-top: 20px;"></div>
-  <h1>Versandoptionen</h1>
-
-  <div id="preis-form">
-    <h2>Preisberechnung</h2>
-
+<body> 
+   <div id="map"></div>
+    
+  <div>
+  <h1>Preisberechnung</h1>
+    <h2>Versandoptionen</h2>
+    
     <label for="versandTyp">Versandtyp:</label>
     <select id="versandTyp">
       <option value="postaktuell">Postaktuell</option>
@@ -24,13 +19,16 @@
     </select>
 
     <label for="gewicht">Gewicht (g):</label>
-    <input type="number" id="gewicht" value="50">
+    <input type="number" id="gewicht" />
 
     <label for="einlieferung">Einlieferungsdatum:</label>
-    <input type="date" id="einlieferung">
+    <input type="date" id="einlieferung" />
 
     <label for="produktVariante">Produktvariante:</label>
-    <input type="number" id="produktVariante" value="1">
+    <select id="produktVariante">
+      <option value="0">Variante 0</option>
+      <option value="1">Variante 1</option>
+    </select>
 
     <label for="bezirksAuswahl">Bezirksauswahl:</label>
     <select id="bezirksAuswahl">
@@ -39,15 +37,14 @@
     </select>
 
     <h3>Postwurf Spezial Optionen</h3>
-
     <label for="laenge">Länge (dm):</label>
-    <input type="number" id="laenge" min="1000" max="5000" required />
+    <input type="number" id="laenge" />
 
     <label for="breite">Breite (dm):</label>
-    <input type="number" id="breite" min="700" max="3000" required />
+    <input type="number" id="breite" />
 
     <label for="hoehe">Höhe (dm):</label>
-    <input type="number" id="hoehe" min="1" max="500" required />
+    <input type="number" id="hoehe" />
 
     <label for="postkarte">Postkarte:</label>
     <select id="postkarte">
@@ -62,17 +59,24 @@
     </select>
 
     <label for="frankierung">Frankierungstyp:</label>
-    <input type="number" id="frankierung" value="1">
+    <select id="frankierung">
+      <option value="0">Typ 0</option>
+      <option value="1">Typ 1</option>
+    </select>
 
     <h3>Ergebnisse</h3>
     <label for="Einwohner">Einwohner:</label>
-    <input type="number" id="Einwohner" readonly>
+    <input type="text" id="Einwohner" readonly/>
 
     <label for="Preis">Preis:</label>
-    <input type="number" id="Preis" readonly>
-  </div>
+    <input type="text" id="Preis" readonly />
   
    <script type="module" src="Map.js"></script>
   <script type="module" src="preisHandler.js"></script>
+
+    </div>
+
+  
+
 </body>
 </html>

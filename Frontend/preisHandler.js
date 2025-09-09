@@ -29,9 +29,11 @@ export async function calculatePreis(einwohnerSum) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body)
-      });
+      });     
 
       result = await response.json();
+      console.log("API Response:", result);
+      
     } else if (versandTyp === 'postwurfsp') {
       const laenge = Math.max(1000, parseInt(document.getElementById('laenge')?.value ?? '0'));
       const breite = Math.max(700, parseInt(document.getElementById('breite')?.value ?? '0'));
@@ -60,6 +62,7 @@ export async function calculatePreis(einwohnerSum) {
       });
 
       result = await response.json();
+      console.log("API Response:", result);
     }
 
     const preisInput = document.getElementById('Preis');

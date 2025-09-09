@@ -35,7 +35,7 @@ app.post('/preis/postaktuell', async (req, res) => {
 
     res.json(result);
   } catch (error) {
-    console.error('Error en /preis/postaktuell:', error);
+    console.error('Fehler /preis/postaktuell:', error);
     res.status(500).json({ error: error.message });
   }
 });
@@ -69,11 +69,11 @@ app.post('/preis/postwurfsp', async (req, res) => {
 
     res.json(result);
   } catch (error) {
-    console.error('Error en /preis/postwurfsp:', error);
+    console.error('Fehler /preis/postwurfsp:', error);
     res.status(500).json({ error: error.message });
   }
 });
 
 app.listen(PORT, () => {
-  console.log(`Servidor escuchando en puerto ${PORT}`);
+  console.log(`Server listening on port ${PORT}`);
 });
