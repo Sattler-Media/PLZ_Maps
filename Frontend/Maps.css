@@ -1,0 +1,28 @@
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+#map {
+  width: 60%;
+  height: 60%;
+  margin: 40px auto 0 auto; /* Centrado horizontal y margen superior */
+  background: #f0f0f059;
+  position: relative; /* o quítalo si no lo necesitas */
+  display: block;
+}
+
+#map-controls {
+  display: flex;
+  justify-content: center;
+  margin: 1rem auto 0 auto;
+  width: 60%;
+}
+
+body {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
