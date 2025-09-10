@@ -413,4 +413,15 @@ function updateEinwohnerSumTotal() {
 // Karte initialisieren
 init();
 
+function clearAllSelections() {
+  selectedPostalCodes.clear();
+  selectedPostalCodes3.clear();
+  selectedPostalCodes2.clear();
+  refreshSelectedFills();
+  updateSelectedPlzLayer();
+  updateEinwohnerSumTotal();
+}
+
+document.getElementById('clearSelections').addEventListener('click', clearAllSelections);
+
 document.body.style.userSelect = 'none'; // Verhindert Textauswahl
