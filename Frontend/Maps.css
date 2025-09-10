@@ -1,7 +1,5 @@
 html, body {
   height: 100%;
-  margin: 0;
-  padding: 0;
 }
 body {
   -webkit-user-select: none;
@@ -13,16 +11,35 @@ body {
 #map {
   width: 60%;
   height: 60%;
-  margin: 40px auto 0 auto; /* Centrado horizontal y margen superior */
-  background: #f0f0f059;
-  position: relative; /* o quítalo si no lo necesitas */
-  display: block;
+  margin: 40px auto 40px auto; 
+  position: relative; 
 }
 
 #map-controls {
-  display: flex;
-  justify-content: center;
-  margin: 1rem auto 0 auto;
-  width: 60%;
+  position: absolute;
+  bottom: 50px;
+  left: 880px;
+  background-color: white;
+  padding: 10px;
+  border-radius: 5px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+  z-index: 1000; 
 }
-
+.options {
+  display: flex;
+  flex-direction: column; 
+  text-align: left;
+  max-width: fit-content;
+}
+.postwurfsp-options {
+  display: flex;
+  flex-direction: column; 
+  text-align: left;
+  max-width: fit-content;
+}
+.footer {
+  display: flex;
+  flex-direction: column; 
+  text-align: left;
+  max-width: fit-content;
+}
