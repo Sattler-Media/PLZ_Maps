@@ -12,6 +12,7 @@
 </head>
 <body class="p-3 m-0 border-0 bd-example m-0 border-0">   
   <div id="map-controls"> 
+       
     <div class="header">
       <h1>Preisberechnung</h1> 
     </div>
@@ -37,7 +38,8 @@
               <label for="gewicht">Gewicht (g):</label>
               <input type="number" id="gewicht" />
 
-              <label for="einlieferung">Einlieferungsdatum:</label>
+              <label for="einlieferung">Einlieferungsdatum:              
+              </label>
               <input type="date" id="einlieferung" />
 
               <label for="produktVariante">Produktvariante:</label>
@@ -51,6 +53,7 @@
                 <option value="true">Ja</option>
                 <option value="false">Nein</option>
               </select>
+              
           </div>
         </div>
       </div>
@@ -96,17 +99,26 @@
       </div>
     </div>
         <div class="footer">
+          
           <h3>Ergebnisse</h3>
-          <label for="Einwohner">Einwohner:</label>
+          <label for="Einwohner">Einwohner:         
+          </label>
           <input type="text" id="Einwohner" readonly/>
 
           <label for="Preis">Preis:</label>
           <input type="text" id="Preis" readonly />
-      
-    </div>
+          <div id="preisFehler" style="color: red; font-size: 0.9em; margin-top: 4px;"></div>            
+    </div>   
   </div>
+  
 <!-- Karte -->  
-<div id="map"></div> 
+<div id="map">
+  <label>
+    <input type="checkbox" id="checkDefault">
+    Auswahl immer sichtbar
+  </label>   
+</div>
+<button id="clearSelections">Alle Selektionen löschen</button> 
 
 <!-- Scripts -->
   <script type="module" src="Map.js"></script>
