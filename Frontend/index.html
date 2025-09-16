@@ -117,13 +117,17 @@
   </div>
   
 <!-- Karte -->  
-<div id="map">
-  <label>
-    <input type="checkbox" id="checkDefault">
-    Auswahl immer sichtbar
-  </label>   
+<div id="map"> 
+  <div class="d-grid gap-2 d-md-flex justify-content-md-end"> 
+    <label>
+        <input type="checkbox" id="checkDefault">
+        Auswahl immer sichtbar
+      </label>   
+    <button type="button" class="btn btn-outline-danger" id="clearSelections">Alle Selektionen löschen</button> 
+ </div>
+     
 </div>
-<button id="clearSelections">Alle Selektionen löschen</button> 
+
 
 <!-- Scripts -->
   <script type="module" src="Map.js"></script>
