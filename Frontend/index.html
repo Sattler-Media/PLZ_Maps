@@ -28,8 +28,10 @@
     });
   </script>
 </head>
-<body class="p-3 m-0 border-0 bd-example m-0 border-0">   
-  <div id="map-controls">        
+<body class="p-3 m-0 border-0 bd-example m-0 border-0"> 
+ 
+  <div id="map-controls"> 
+           
     <div class="header">
       <h1>Preisberechnung</h1> 
     </div>
@@ -140,13 +142,12 @@
   <div class="d-grid gap-2 d-md-flex justify-content-md-end"> 
 
     <input type="text" id="search-bar" placeholder="Stadt, Bundesland oder PLZ" autocomplete="off" />
-    <ul id="search-results"></ul>
+    
   
     <button type="button" class="btn btn-outline-danger" id="clearSelections">Alle Selektionen löschen</button> 
- </div>
-     
+ </div>     
 </div>
-
+<ul id="search-results"></ul>
 <!-- Karte Script -->
   <script type="module" src="Map.js"></script>
 </body>
