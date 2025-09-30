@@ -364,14 +364,14 @@ document.getElementById('search-bar').addEventListener('input', function(e) {
   const query = e.target.value.toLowerCase();
   const resultsList = document.getElementById('search-results');
 
-  // Si el campo está vacío, limpiar resultados y salir
+  // Leeren Suchbegriff
   if (query.trim() === '') {
     resultsList.innerHTML = '';
     return;
   }
 
   let results = [];
-  // Buscar en Landkreise
+  // Landkreise durchsuchen
  if (geojsonLandkreise) {
   const landkreiseResults = geojsonLandkreise.features.filter(f =>
     Array.isArray(f.properties.krs_name) &&
@@ -383,7 +383,7 @@ document.getElementById('search-bar').addEventListener('input', function(e) {
   }));
   results = results.concat(landkreiseResults);
 }
-  // Buscar en estados
+  // Bundesländer durchsuchen
   if (geojsonStates) {
     const stateResults = geojsonStates.features.filter(f =>
       f.properties.name && f.properties.name.toLowerCase().includes(query)
@@ -396,7 +396,7 @@ document.getElementById('search-bar').addEventListener('input', function(e) {
     results = results.concat(stateResults);
   }
 
-  // Buscar en PLZ-3stellig
+  // PLZ-3stellig durchsuchen
   if (geojsonData3) {
     const plz3Results = geojsonData3.features.filter(f =>
       f.properties.plz && f.properties.plz.includes(query)
@@ -409,7 +409,7 @@ document.getElementById('search-bar').addEventListener('input', function(e) {
     results = results.concat(plz3Results);
   }
 
-  // Buscar en PLZ-5stellig
+  // PLZ-5stellig durchsuchen
   if (geojsonData) {
     const plz5Results = geojsonData.features.filter(f =>
       f.properties.plz && f.properties.plz.includes(query)
@@ -437,14 +437,14 @@ function showSearchResults(results) {
     plz5: []
   };
 
-  // Agrupar resultados por tipo
+  // gruppieren der Ergebnisse
   results.forEach(result => {
     if (grouped[result.type]) {
       grouped[result.type].push(result);
     }
   });
 
-  // Función auxiliar para crear encabezado y elementos
+  // extrahieren und hinzufügen der gruppen
   function addGroupToList(title, items) {
     if (items.length === 0) return;
 
@@ -463,7 +463,7 @@ function showSearchResults(results) {
     });
   }
 
-  // Agregar grupos en orden deseado
+  // gewünschte Reihenfolge der Gruppen
   addGroupToList('Landkreise', grouped.landkreis);
   addGroupToList('Bundesländer', grouped.state);
   addGroupToList('3-Stellig PLZ', grouped.plz3);
@@ -485,13 +485,13 @@ function handleResultClick(result, resultsList) {
     select5DigitPlzByPrefix(result.plz);
     centerMapOnFeature(result.feature);
   } else if (result.type === 'plz3') {
-    select5DigitPlzByPrefix(result.plz); // Si tienes una función específica para 3-stellig, cámbiala aquí
+    select5DigitPlzByPrefix(result.plz); 
     centerMapOnFeature(result.feature);
   } else if (result.type === 'state') {
-  selectPlz5InsideState(result.feature); // ← solo selecciona PLZ-5
+  selectPlz5InsideState(result.feature); 
   centerMapOnFeature(result.feature);
   } else if (result.type === 'landkreis') {
-  selectPlz5InsideLandkreis(result.feature); // ← solo selecciona PLZ-5
+  selectPlz5InsideLandkreis(result.feature);
   centerMapOnFeature(result.feature);
   }  
   resultsList.innerHTML = '';
@@ -657,7 +657,7 @@ function clearAllSelections() {
   updateSelectedPlzLayer();
   updateEinwohnerSumTotal();
 
-  // Ocultar States y Landkreise si están visibles
+  // versteckt Bundesländer und Landkreise Layer
   if (map.getLayer('States-fill')) {
     map.setLayoutProperty('States-fill', 'visibility', 'none');
   }
