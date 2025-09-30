@@ -7,8 +7,26 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://getbootstrap.com/docs/5.3/assets/css/docs.css" rel="stylesheet">
-  <title>Preisberechnung</title>  
-  <script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+  <title>Preisberechnung</title> 
+   <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/@turf/turf@6/turf.min.js"></script>  
+  <script src="https://cdn.jsdelivrf/turf@6/turf.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.min.js" integrity="sha384-G/EV+4j2dNv+tEPo3++6LCgdCROaejBqfUeNjuKAiuXbjrxilcCdDz6ZAVfHWe1Y" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+  <script type="module" src="preisHandler.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const versandTyp = document.getElementById("versandTyp");
+      versandTyp.addEventListener("change", function () {
+        if (versandTyp.value === "postwurfsp") {
+          const offcanvasElement = document.getElementById("postwurfSpezialCanvas");
+          const bsOffcanvas = new bootstrap.Offcanvas(offcanvasElement);
+          bsOffcanvas.show();
+        }
+      });
+    });
+  </script>
 </head>
 <body class="p-3 m-0 border-0 bd-example m-0 border-0">   
   <div id="map-controls">        
@@ -120,31 +138,16 @@
 <!-- Karte -->  
 <div id="map"> 
   <div class="d-grid gap-2 d-md-flex justify-content-md-end"> 
-    <label>
-        <input type="checkbox" id="checkDefault">
-        Auswahl immer sichtbar
-      </label>   
+
+    <input type="text" id="search-bar" placeholder="Stadt, Bundesland oder PLZ" autocomplete="off" />
+    <ul id="search-results"></ul>
+  
     <button type="button" class="btn btn-outline-danger" id="clearSelections">Alle Selektionen löschen</button> 
  </div>
      
 </div>
 
-<!-- Scripts -->
+<!-- Karte Script -->
   <script type="module" src="Map.js"></script>
-  <script type="module" src="preisHandler.js"></script>
-
-  <script>
-    document.addEventListener("DOMContentLoaded", function () {
-      const versandTyp = document.getElementById("versandTyp");
-      versandTyp.addEventListener("change", function () {
-        if (versandTyp.value === "postwurfsp") {
-          const offcanvasElement = document.getElementById("postwurfSpezialCanvas");
-          const bsOffcanvas = new bootstrap.Offcanvas(offcanvasElement);
-          bsOffcanvas.show();
-        }
-      });
-    });
-  </script>
-
 </body>
 </html>
