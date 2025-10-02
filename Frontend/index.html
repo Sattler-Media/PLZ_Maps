@@ -35,11 +35,6 @@
     <div class="header">
       <h1>Preisberechnung</h1> 
     </div>
-
-     <!-- 1. offcanvass Button -->
-    <button class="btn btn-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasMain" aria-controls="offcanvasMain">
-      Versandoptionen
-    </button> 
         <!-- 1. offcanvas -->
     <div class="offcanvas offcanvas-start" data-bs-backdrop="false" tabindex="-1" id="offcanvasMain" aria-labelledby="offcanvasMainLabel">
       <div class="offcanvas-header">
@@ -124,13 +119,11 @@
     </div>
       </div>
     </div>
-        <div class="footer">
-          
+        <div class="footer">          
           <h3>Ergebnisse</h3>
           <label for="Einwohner">Einwohner:         
           </label>
           <input type="text" id="Einwohner" readonly/>
-
           <label for="Preis">Preis:</label>
           <input type="text" id="Preis" readonly />
           <div id="preisFehler" style="color: red; font-size: 0.9em; margin-top: 4px;"></div>            
@@ -140,7 +133,10 @@
 <!-- Karte -->  
 <div id="map"> 
   <div class="d-grid gap-2 d-md-flex justify-content-md-end"> 
-
+         <!-- 1. offcanvass Button -->
+    <button class="btn btn-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasMain" aria-controls="offcanvasMain">
+      Versandoptionen
+    </button> 
     <input type="text" id="search-bar" placeholder="Stadt, Bundesland oder PLZ" autocomplete="off" />
     
   

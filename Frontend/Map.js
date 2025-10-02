@@ -68,7 +68,7 @@ function selectPlz5InsideState(stateFeature) {
     }
   });
 
-  selectedPostalCodes.clear();
+  
   newSelected.forEach(plz => selectedPostalCodes.add(plz));
 
   refreshSelectedFills();
@@ -94,7 +94,6 @@ function selectPlz5InsideLandkreis(landkreisFeature) {
     }
   });
 
-  selectedPostalCodes.clear();
   newSelected.forEach(plz => selectedPostalCodes.add(plz));
 
   refreshSelectedFills();
@@ -465,7 +464,7 @@ function showSearchResults(results) {
 
   // gewünschte Reihenfolge der Gruppen
   addGroupToList('Landkreise', grouped.landkreis);
-  addGroupToList('Bundesländer', grouped.state);
+  addGroupToList('Bundesland', grouped.state);
   addGroupToList('3-Stellig PLZ', grouped.plz3);
   addGroupToList('5-Stellig PLZ', grouped.plz5);
 }
@@ -474,8 +473,12 @@ function showSearchResults(results) {
 document.getElementById('search-bar').addEventListener('keydown', function(e) {
   if (e.key === 'Enter') {
     const resultsList = document.getElementById('search-results');
-    if (resultsList.firstChild) {
-      resultsList.firstChild.click();
+    const items = resultsList.querySelectorAll('li');
+    for (let item of items) {
+      if (item.style.cursor === 'pointer') {
+        item.click();
+        break;
+      }
     }
   }
 });
