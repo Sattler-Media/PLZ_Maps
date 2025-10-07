@@ -44,9 +44,12 @@ export async function calculatePreis(einwohnerSum) {
             console.log("API Response:", result);  
 
         } else if (versandTyp === 'postwurfsp') {
-            const laenge = Math.max(1000, parseInt(document.getElementById('laenge')?.value ?? '0'));
-            const breite = Math.max(700, parseInt(document.getElementById('breite')?.value ?? '0'));
-            const hoehe = Math.max(1, parseInt(document.getElementById('hoehe')?.value ?? '0'));
+            const laengeInput = parseInt(document.getElementById('laenge')?.value ?? '0');
+const laenge = (laengeInput >= 100 ? laengeInput : 100) * 10;
+            const breiteInput = parseInt(document.getElementById('breite')?.value ?? '0');
+const breite = (breiteInput >= 70 ? breiteInput : 70) * 10;
+            const hoeheInput = parseInt(document.getElementById('hoehe')?.value ?? '0');
+const hoehe = (hoeheInput >= 1 ? hoeheInput : 1) * 10;
             const postkarte = document.getElementById('postkarte')?.value === 'true';
             const automation = document.getElementById('automation')?.value === 'true';
             const frankierung = parseInt(document.getElementById('frankierung')?.value ?? '0');

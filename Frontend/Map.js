@@ -11,7 +11,7 @@ let geojsonData2 = null;   // 2-stellig
 let geojsonStates = null;  // Bundesländer
 let geojsonLandkreise = null; // Landkreise
 let map = null; // Map-Instanz
-
+let plzSpatialIndex = null
 // Benutzerzentrum bestimmen (mit Fallback auf Berlin)
 async function getUserCenter() {
   const defaultCenter = [13.4090638258883, 52.51156577109141]; // Berlin
@@ -49,62 +49,14 @@ map.on('load', () => {
     console.error('Fehler in der Karte:', e.error);
   });
 }
-// TURF.js Funktion um alle PLZ-5stellig innerhalb eines Bundeslandes zu selektieren
-function selectPlz5InsideState(stateFeature) {
-  if (!geojsonData || !stateFeature) return;
-  const newSelected = [];
 
-  geojsonData.features.forEach(plzFeature => {
-    const intersection = turf.intersect(plzFeature, stateFeature);
-    if (intersection) {
-      const intersectionArea = turf.area(intersection);
-      const plzArea = turf.area(plzFeature);
-      const overlapRatio = intersectionArea / plzArea;
 
-      // Selektiere PLZ, wenn mindestens 20% der Fläche überlappt
-      if (overlapRatio >= 0.2) {
-        newSelected.push(plzFeature.properties.plz);
-      }
-    }
-  });
-
-  
-  newSelected.forEach(plz => selectedPostalCodes.add(plz));
-
-  refreshSelectedFills();
-  updateSelectedPlzLayer();
-  updateEinwohnerSumTotal();
-}
-// TURF.js Funktion um alle PLZ-5stellig innerhalb eines Landkreises zu selektieren
-function selectPlz5InsideLandkreis(landkreisFeature) {
-  if (!geojsonData || !landkreisFeature) return;
-
-  const newSelected = [];
-
-  geojsonData.features.forEach(plzFeature => {
-    const intersection = turf.intersect(plzFeature, landkreisFeature);
-    if (intersection) {
-      const intersectionArea = turf.area(intersection);
-      const plzArea = turf.area(plzFeature);
-      const overlapRatio = intersectionArea / plzArea;
-
-      if (overlapRatio >= 0.2) {
-        newSelected.push(plzFeature.properties.plz);
-      }
-    }
-  });
-
-  newSelected.forEach(plz => selectedPostalCodes.add(plz));
-
-  refreshSelectedFills();
-  updateSelectedPlzLayer();
-  updateEinwohnerSumTotal();
-}
 // Hauptfunktion zum Hinzufügen aller PLZ-Layer
 async function addPostalCodeLayers(mapInstance) {
   try {
     // --- PLZ-5stellig Layer ---
     geojsonData = await (await fetch('./GeoJson/plz-5stellig.geojson')).json();
+    buildPlzSpatialIndex();
     map.addSource('postal-codes-germany', { type: 'geojson', data: geojsonData });
     map.addLayer({
       id: 'PLZ-fill',
@@ -359,7 +311,7 @@ async function addLandkreiseLayer(mapInstance) {
 }
 
 // Suchleiste Funktionalität
-document.getElementById('search-bar').addEventListener('input', function(e) {
+document.addEventListener('DOMContentLoaded', function () {document.getElementById('search-bar').addEventListener('input', function(e) {
   const query = e.target.value.toLowerCase();
   const resultsList = document.getElementById('search-results');
 
@@ -422,7 +374,7 @@ document.getElementById('search-bar').addEventListener('input', function(e) {
   }
 
   showSearchResults(results.slice(0, 10));
-});
+});});
 
 // suchergebnisse anzeigen
 function showSearchResults(results) {
@@ -470,7 +422,7 @@ function showSearchResults(results) {
 }
 
 // Enter-Taste Funktionalität
-document.getElementById('search-bar').addEventListener('keydown', function(e) {
+document.addEventListener('DOMContentLoaded', function () {document.getElementById('search-bar').addEventListener('keydown', function(e) {
   if (e.key === 'Enter') {
     const resultsList = document.getElementById('search-results');
     const items = resultsList.querySelectorAll('li');
@@ -481,7 +433,7 @@ document.getElementById('search-bar').addEventListener('keydown', function(e) {
       }
     }
   }
-});
+});});
 // Klick-Handler für Suchergebnisse
 function handleResultClick(result, resultsList) {
   if (result.type === 'plz5') {
@@ -570,6 +522,7 @@ function onPlz2FillClick(e) {
 }
 // Aktualisiert die Farben/Opazität der Layer je nach Auswahl
 function refreshSelectedFills() {
+  // PLZ-5
   map.setPaintProperty('PLZ-fill', 'fill-color', [
     'case',
     ['in', ['get', 'plz'], ['literal', Array.from(selectedPostalCodes)]],
@@ -581,7 +534,35 @@ function refreshSelectedFills() {
     ['in', ['get', 'plz'], ['literal', Array.from(selectedPostalCodes)]],
     0.4,
     0
-  ]);  
+  ]);
+
+  // PLZ-3
+  map.setPaintProperty('PLZ3-fill', 'fill-color', [
+    'case',
+    ['in', ['get', 'plz'], ['literal', Array.from(selectedPostalCodes3)]],
+    '#0074D9',
+    'rgba(0,0,0,0)'
+  ]);
+  map.setPaintProperty('PLZ3-fill', 'fill-opacity', [
+    'case',
+    ['in', ['get', 'plz'], ['literal', Array.from(selectedPostalCodes3)]],
+    0.4,
+    0.3
+  ]);
+
+  // PLZ-2
+  map.setPaintProperty('PLZ2-fill', 'fill-color', [
+    'case',
+    ['in', ['get', 'plz'], ['literal', Array.from(selectedPostalCodes2)]],
+    '#2ECC40',
+    'rgba(0,0,0,0)'
+  ]);
+  map.setPaintProperty('PLZ2-fill', 'fill-opacity', [
+    'case',
+    ['in', ['get', 'plz'], ['literal', Array.from(selectedPostalCodes2)]],
+    0.4,
+    0.3
+  ]);
 }
 // Aktualisiert den Layer für immer sichtbare Selektion
 function updateSelectedPlzLayer() {
@@ -675,6 +656,87 @@ function clearAllSelections() {
   }
 }
 
-document.getElementById('clearSelections').addEventListener('click', clearAllSelections);
+document.addEventListener('DOMContentLoaded', function () {
+  const clearBtn = document.getElementById('clearSelections');
+  if (clearBtn) {
+    clearBtn.addEventListener('click', clearAllSelections);
+  } else {
+    console.warn('clearSelections button not found in DOM');
+  }
+});
 
 document.body.style.userSelect = 'none'; // Verhindert Textauswahl
+
+
+// --- Spatial Index für schnellere Geometrie-Abfragen ---
+function buildPlzSpatialIndex() {
+    if (!geojsonData) return;
+    plzSpatialIndex = new rbush();
+    const items = geojsonData.features.map(f => {
+        const bbox = turf.bbox(f);
+        return {
+            minX: bbox[0],
+            minY: bbox[1],
+            maxX: bbox[2],
+            maxY: bbox[3],
+            feature: f
+        };
+    });
+    plzSpatialIndex.load(items);
+}
+
+// Neue Version mit Spatial Index
+function selectPlz5InsideState(stateFeature) {
+    if (!plzSpatialIndex || !stateFeature) return;
+    const stateBbox = turf.bbox(stateFeature);
+    const candidates = plzSpatialIndex.search({
+        minX: stateBbox[0],
+        minY: stateBbox[1],
+        maxX: stateBbox[2],
+        maxY: stateBbox[3]
+    });
+
+    const newSelected = [];
+    candidates.forEach(item => {
+        const intersection = turf.intersect(item.feature, stateFeature);
+        if (intersection) {
+            const overlapRatio = turf.area(intersection) / turf.area(item.feature);
+            if (overlapRatio >= 0.2) {
+                newSelected.push(item.feature.properties.plz);
+            }
+        }
+    });
+
+    newSelected.forEach(plz => selectedPostalCodes.add(plz));
+    refreshSelectedFills();
+    updateSelectedPlzLayer();
+    updateEinwohnerSumTotal();
+}
+
+function selectPlz5InsideLandkreis(landkreisFeature) {
+    if (!plzSpatialIndex || !landkreisFeature) return;
+    const landkreisBbox = turf.bbox(landkreisFeature);
+    const candidates = plzSpatialIndex.search({
+        minX: landkreisBbox[0],
+        minY: landkreisBbox[1],
+        maxX: landkreisBbox[2],
+        maxY: landkreisBbox[3]
+    });
+
+    const newSelected = [];
+    candidates.forEach(item => {
+        const intersection = turf.intersect(item.feature, landkreisFeature);
+        if (intersection) {
+            const overlapRatio = turf.area(intersection) / turf.area(item.feature);
+            if (overlapRatio >= 0.2) {
+                newSelected.push(item.feature.properties.plz);
+            }
+        }
+    });
+
+    newSelected.forEach(plz => selectedPostalCodes.add(plz));
+    refreshSelectedFills();
+    updateSelectedPlzLayer();
+    updateEinwohnerSumTotal();
+  }
+// --- ENDE Spatial Index ---
