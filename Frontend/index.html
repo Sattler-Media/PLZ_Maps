@@ -139,9 +139,12 @@
     <button class="btn btn-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasMain" aria-controls="offcanvasMain">
       Versandoptionen
     </button> 
-    <input type="text" id="search-bar" placeholder="Stadt, Bundesland oder PLZ" autocomplete="off" />
-    
-  
+        <!-- Searchbar und Ergebnisse -->
+    <div style="position: relative;">
+      <input type="text" id="search-bar" placeholder="Stadt, Bundesland oder PLZ" autocomplete="off" class="form-control" />
+      <ul id="search-results" class="list-group position-absolute w-100" style="z-index: 1000;"></ul>
+    </div> 
+        <!-- Resetknopf -->
     <button type="button" class="btn btn-outline-danger" id="clearSelections">Alle Selektionen löschen</button> 
  </div>     
 </div>

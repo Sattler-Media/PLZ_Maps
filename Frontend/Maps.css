@@ -30,16 +30,27 @@ body {
   max-width: fit-content; 
 }
 
-#search-results{
-  position: absolute;
-  bottom: 100px;
-  right: 680px; 
-  padding: 10px;
-  border-radius: 5px;  
-  z-index: 1000;  
-  text-align: left;
-  max-width: fit-content; 
+#search-results {
+  max-height: 300px;
+  overflow-y: auto;
+  background-color: white;
+  border: 1px solid #ccc;
+  border-top: none;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  list-style: none;
+  margin: 0;
+  padding: 0;
 }
+
+#search-results li {
+  padding: 10px;
+  cursor: pointer;
+}
+
+#search-results li:hover {
+  background-color: #f1f1f1;
+}
+
 .options {
   display: flex;
   flex-direction: column; 
