@@ -47,7 +47,7 @@
         <div class="menu">
           <div class="options">
             <label for="versandTyp">Versandtyp:</label>
-              <select id="versandTyp" class="form-select">
+              <select name="versandTyp" id="versandTyp" class="form-select">
                 <option value="postaktuell" selected>Postaktuell</option>
                 <option value="postwurfsp">Postwurf Spezial</option>
               </select>
@@ -146,5 +146,28 @@
  </div>     
 </div>
 <ul id="search-results"></ul>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const offcanvasElement = document.getElementById('postwurfSpezialCanvas'); // 2. offcanvas ID
+  const versandtypSelect = document.querySelector('select[name="versandTyp"]'); // Selektor listening für das Versandtyp-Dropdown
+  const postwurfspezialOption = document.createElement('option');
+  postwurfspezialOption.value = 'postwurfsp';
+  postwurfspezialOption.textContent = 'Postwurf Spezial';
+  postwurfspezialOption.id = 'postwurfspezial-option';
+
+  // Option zeigen beim Öffnen des offcanvas
+  offcanvasElement.addEventListener('show.bs.offcanvas', function () {   
+    versandtypSelect.value = 'postwurfsp';
+  });
+
+  // Option ausblenden beim Schließen des offcanvas
+  offcanvasElement.addEventListener('hidden.bs.offcanvas', function () {
+    versandtypSelect.value = 'postaktuell';
+  });
+});
+</script>
 </body>
 </html>
+
+
