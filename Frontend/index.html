@@ -13,8 +13,8 @@
   <script src="https://unpkg.com/rbush@2.0.1/rbush.min.js"></script>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
-  <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
-  <script src="Map.js"></script>
+  <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script> 
+  <script src="Map.js"></script> 
   <script type="module" src="preisHandler.js"></script> 
   <script>
     document.addEventListener("DOMContentLoaded", function () {
@@ -30,8 +30,11 @@
   </script>
   
 </head>
-<body class="p-3 m-0 border-0 bd-example m-0 border-0">
-  <div id="selected-tags-container" style="margin: 20px;"></div>    
+<body class="p-3 m-0 border-0 bd-example m-0 border-0"> 
+
+<!-- Ausgewählte Tags Container -->
+  <div id="selected-tags-container" style="margin: 20px;"></div>   
+<!-- Steuerungselemente --> 
   <div id="map-controls">
           <!-- Tabelle -->
       <div class="header">
@@ -128,6 +131,11 @@
         </div>
       </div>             
     </div>    
+  </div>
+   <!-- Loader -->
+  <div id="loader">
+    <div class="spinner"></div>
+    <span id="loader-text">Lade Karte...</span>
   </div>  
 <!-- Karte -->  
 <div id="map"> 
@@ -145,6 +153,7 @@
     <button type="button" class="btn btn-outline-danger" id="clearSelections">Alle Selektionen löschen</button> 
  </div>     
 </div>
+
 <script>
 document.addEventListener('DOMContentLoaded', function () {
   const offcanvasElement = document.getElementById('postwurfSpezialCanvas'); // 2. offcanvas ID

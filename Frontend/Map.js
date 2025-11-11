@@ -14,6 +14,17 @@ let geojsonStates = null;  // Bundesländer
 let geojsonLandkreise = null; // Landkreise
 let map = null; // Map-Instanz
 let plzSpatialIndex = null
+// Loader-Funktionen
+function showLoader(message = 'Lade Karte...') {
+    const loader = document.getElementById('loader');
+    document.getElementById('loader-text').textContent = message;
+    loader.style.display = 'flex';
+}
+// Versteckt den Loader
+function hideLoader() {
+    document.getElementById('loader').style.display = 'none';
+}
+
 // Benutzerzentrum bestimmen (mit Fallback auf Berlin)
 async function getUserCenter() {
   const defaultCenter = [13.4090638258883, 52.51156577109141]; // Berlin
@@ -29,6 +40,7 @@ async function getUserCenter() {
   }
   return defaultCenter;
 }
+
 // Initialisierung der Karte
 async function init() {
   const center = await getUserCenter();
@@ -36,11 +48,14 @@ async function init() {
     container: 'map',
     center: center,
     style: 'https://api.maptiler.com/maps/streets/style.json?key=4BNJO72dCI17waAmwZ2E',
-    zoom: 10
+    zoom: 10,
+    maxTileCacheSize: 200, // Erhöht den Cache für bessere Leistung
+    workerCount: 4 // Nutzt mehrere Worker für bessere Performance
   });
 
 map.on('load', () => {
   console.log('Karte erfolgreich geladen!');
+  
   addPostalCodeLayers(map);
   addStatesLayer(map);
   addLandkreiseLayer(map);
@@ -50,208 +65,88 @@ map.on('load', () => {
     console.error('Fehler in der Karte:', e.error);
   });
 }
+
 // Hauptfunktion zum Hinzufügen aller PLZ-Layer
 async function addPostalCodeLayers(mapInstance) {
-  try {
-    // --- PLZ-5stellig Layer ---
-    geojsonData = await (await fetch('./GeoJson/plz-5stellig.geojson')).json();
-    buildPlzSpatialIndex();
-    map.addSource('postal-codes-germany', { type: 'geojson', data: geojsonData });
-    map.addLayer({
-      id: 'PLZ-fill',
-      type: 'fill',
-      source: 'postal-codes-germany',
-      paint: {
-        'fill-color': [
-          'case',
-          ['in', ['get', 'plz'], ['literal', Array.from(selectedPostalCodes)]],
-          '#ff0000',
-          'rgba(0,0,0,0)'
-        ],
-        'fill-opacity': [
-          'case',
-          ['in', ['get', 'plz'], ['literal', Array.from(selectedPostalCodes)]],
-          0.4,
-          0
-        ]
-      },
-      minzoom: 9.5
-    });
+    try {
+        showLoader('Postleitzahlen werden geladen...');
 
-    map.addLayer({
-      id: 'PLZ-borders',
-      type: 'line',
-      source: 'postal-codes-germany',
-      paint: {
-        'line-color': '#990000',
-        'line-width': 1.5
-      },
-      minzoom: 9.5
-    });
+        // Cargar todas las capas en paralelo
+        const [plz5, plz3, plz2] = await Promise.all([
+            fetch('./GeoJson/plz-5stellig.geojson').then(res => res.json()),
+            fetch('./GeoJson/plz-3stellig.geojson').then(res => res.json()),
+            fetch('./GeoJson/plz-2stellig.geojson').then(res => res.json())
+        ]);
 
-    map.addLayer({
-      id: 'PLZ-labels',
-      type: 'symbol',
-      source: 'postal-codes-germany',
-      layout: {
-        'text-field': ['get', 'plz'],
-        'text-size': 12
-      },
-      paint: {
-        'text-color': 'red',
-        'text-halo-color': 'white',
-        'text-halo-width': 2
-      },
-      minzoom: 9.5
-    });
+        geojsonData = plz5;
+        geojsonData3 = plz3;
+        geojsonData2 = plz2;
 
-    // --- PLZ-3stellig Layer ---
-    geojsonData3 = await (await fetch('./GeoJson/plz-3stellig.geojson')).json();
-    map.addSource('postal-codes-germany-3', { type: 'geojson', data: geojsonData3 });
-    map.addLayer({
-      id: 'PLZ3-fill',
-      type: 'fill',
-      source: 'postal-codes-germany-3',
-      paint: {
-        'fill-color': [
-          'case',
-          ['in', ['get', 'plz'], ['literal', Array.from(selectedPostalCodes3)]],
-          '#0074D9',
-          'rgba(0,0,0,0)'
-        ],
-        'fill-opacity': [
-          'case',
-          ['in', ['get', 'plz'], ['literal', Array.from(selectedPostalCodes3)]],
-          0.4,
-          0.3
-        ]
-      },
-      minzoom: 8,
-      maxzoom: 9.5
-    });
+        buildPlzSpatialIndex();
 
-    map.addLayer({
-      id: 'PLZ3-borders',
-      type: 'line',
-      source: 'postal-codes-germany-3',
-      paint: {
-        'line-color': '#0074D9',
-        'line-width': 1.5
-      },
-      minzoom: 8,
-      maxzoom: 9.5
-    });
+        // Añadir PLZ-5
+        mapInstance.addSource('postal-codes-germany', { type: 'geojson', data: geojsonData });
+        mapInstance.addLayer({
+            id: 'PLZ-fill',
+            type: 'fill',
+            source: 'postal-codes-germany',
+            paint: {
+                'fill-color': ['case', ['in', ['get', 'plz'], ['literal', Array.from(selectedPostalCodes)]], '#ff0000', 'rgba(0,0,0,0)'],
+                'fill-opacity': ['case', ['in', ['get', 'plz'], ['literal', Array.from(selectedPostalCodes)]], 0.4, 0]
+            },
+            minzoom: 9.5
+        });
+        mapInstance.addLayer({ id: 'PLZ-borders', type: 'line', source: 'postal-codes-germany', paint: { 'line-color': '#990000', 'line-width': 1.5 }, minzoom: 9.5 });
+        mapInstance.addLayer({ id: 'PLZ-labels', type: 'symbol', source: 'postal-codes-germany', layout: { 'text-field': ['get', 'plz'], 'text-size': 12 }, paint: { 'text-color': 'red', 'text-halo-color': 'white', 'text-halo-width': 2 }, minzoom: 9.5 });
 
-    map.addLayer({
-      id: 'PLZ3-labels',
-      type: 'symbol',
-      source: 'postal-codes-germany-3',
-      layout: {
-        'text-field': ['get', 'plz'],
-        'text-size': 14
-      },
-      paint: {
-        'text-color': 'blue',
-        'text-halo-color': 'white',
-        'text-halo-width': 2
-      },
-      minzoom: 8,
-      maxzoom: 9.5
-    });
+        // Añadir PLZ-3
+        mapInstance.addSource('postal-codes-germany-3', { type: 'geojson', data: geojsonData3 });
+        mapInstance.addLayer({
+            id: 'PLZ3-fill',
+            type: 'fill',
+            source: 'postal-codes-germany-3',
+            paint: {
+                'fill-color': ['case', ['in', ['get', 'plz'], ['literal', Array.from(selectedPostalCodes3)]], '#0074D9', 'rgba(0,0,0,0)'],
+                'fill-opacity': ['case', ['in', ['get', 'plz'], ['literal', Array.from(selectedPostalCodes3)]], 0.4, 0.3]
+            },
+            minzoom: 8,
+            maxzoom: 9.5
+        });
+        mapInstance.addLayer({ id: 'PLZ3-borders', type: 'line', source: 'postal-codes-germany-3', paint: { 'line-color': '#0074D9', 'line-width': 1.5 }, minzoom: 8, maxzoom: 9.5 });
+        mapInstance.addLayer({ id: 'PLZ3-labels', type: 'symbol', source: 'postal-codes-germany-3', layout: { 'text-field': ['get', 'plz'], 'text-size': 14 }, paint: { 'text-color': 'blue', 'text-halo-color': 'white', 'text-halo-width': 2 }, minzoom: 8, maxzoom: 9.5 });
 
-    // --- PLZ-2stellig Layer ---
-    geojsonData2 = await (await fetch('./GeoJson/plz-2stellig.geojson')).json();
-    map.addSource('postal-codes-germany-2', { type: 'geojson', data: geojsonData2 });
-    map.addLayer({
-      id: 'PLZ2-fill',
-      type: 'fill',
-      source: 'postal-codes-germany-2',
-      paint: {
-        'fill-color': [
-          'case',
-          ['in', ['get', 'plz'], ['literal', Array.from(selectedPostalCodes2)]],
-          '#2ECC40',
-          'rgba(0,0,0,0)'
-        ],
-        'fill-opacity': [
-          'case',
-          ['in', ['get', 'plz'], ['literal', Array.from(selectedPostalCodes2)]],
-          0.4,
-          0.3
-        ]
-      },
-      minzoom: 0,
-      maxzoom: 8
-    });
+        // Añadir PLZ-2
+        mapInstance.addSource('postal-codes-germany-2', { type: 'geojson', data: geojsonData2 });
+        mapInstance.addLayer({
+            id: 'PLZ2-fill',
+            type: 'fill',
+            source: 'postal-codes-germany-2',
+            paint: {
+                'fill-color': ['case', ['in', ['get', 'plz'], ['literal', Array.from(selectedPostalCodes2)]], '#2ECC40', 'rgba(0,0,0,0)'],
+                'fill-opacity': ['case', ['in', ['get', 'plz'], ['literal', Array.from(selectedPostalCodes2)]], 0.4, 0.3]
+            },
+            minzoom: 0,
+            maxzoom: 8
+        });
+        mapInstance.addLayer({ id: 'PLZ2-borders', type: 'line', source: 'postal-codes-germany-2', paint: { 'line-color': 'green', 'line-width': 1.5 }, minzoom: 0, maxzoom: 8 });
+        mapInstance.addLayer({ id: 'PLZ2-labels', type: 'symbol', source: 'postal-codes-germany-2', layout: { 'text-field': ['get', 'plz'], 'text-size': 16 }, paint: { 'text-color': '#ff7001', 'text-halo-color': 'white', 'text-halo-width': 2 }, minzoom: 0, maxzoom: 8 });
 
-    map.addLayer({
-      id: 'PLZ2-borders',
-      type: 'line',
-      source: 'postal-codes-germany-2',
-      paint: {
-        'line-color': 'green',
-        'line-width': 1.5
-      },
-      minzoom: 0,
-      maxzoom: 8
-    });
+        // Selektions-Layer
+        mapInstance.addSource('plz-selected', { type: 'geojson', data: { type: 'FeatureCollection', features: [] } });
+        mapInstance.addLayer({ id: 'PLZ-selected', type: 'fill', source: 'plz-selected', paint: { 'fill-color': '#FFD700', 'fill-opacity': 0.6 }, minzoom: 0, maxzoom: 24 });
 
-    map.addLayer({
-      id: 'PLZ2-labels',
-      type: 'symbol',
-      source: 'postal-codes-germany-2',
-      layout: {
-        'text-field': ['get', 'plz'],
-        'text-size': 16
-      },
-      paint: {
-        'text-color': '#ff7001',
-        'text-halo-color': 'white',
-        'text-halo-width': 2
-      },
-      minzoom: 0,
-      maxzoom: 8
-    });
+        // Eventos
+        mapInstance.on('click', 'PLZ-fill', onPlzFillClick);
+        mapInstance.on('click', 'PLZ2-fill', onPlz2FillClick);
+        mapInstance.on('click', 'PLZ3-fill', onPlz3FillClick);
 
-    // --- Selektions-Layer für alle Zoomstufen ---
-    map.addSource('plz-selected', {
-      type: 'geojson',
-      data: { type: 'FeatureCollection', features: [] }
-    });
-    map.addLayer({
-      id: 'PLZ-selected',
-      type: 'fill',
-      source: 'plz-selected',
-      paint: {
-        'fill-color': '#FFD700', // Goldgelb
-        'fill-opacity': 0.6
-      },
-      minzoom: 0,
-      maxzoom: 24,
-      layout: { visibility: 'visible' } // <-- Startet sichtbar
-    });
-
-    // Klick-Events für die Layer
-    map.on('click', 'PLZ-fill', onPlzFillClick);   
-    map.on('click', 'PLZ2-fill', onPlz2FillClick);
-    map.on('click', 'PLZ3-fill', onPlz3FillClick);
-
-    // Zoom-Event für Layer-Umschaltung
-   
-    map.on('zoom', () => {
-      refreshSelectedFills();
-      updateEinwohnerSumTotal();
-    });
-
-
-    // Initiales Styling und Einwohner-Summe
-    refreshSelectedFills();
-    updateEinwohnerSumTotal();
-   
-  } catch (error) {
-    console.error('Fehler beim Hinzufügen der PLZ-Layer:', error);
-  }
+        hideLoader();
+    } catch (error) {
+        console.error('Fehler beim Hinzufügen der PLZ-Layer:', error);
+        hideLoader();
+    }
 }
+
 // Hauptfunktion zum Bundesländer Hinzufügen 
 async function addStatesLayer(mapInstance) {
   geojsonStates = await (await fetch('./GeoJson/states.geojson')).json();
@@ -277,6 +172,7 @@ async function addStatesLayer(mapInstance) {
     layout: { visibility: 'none' }
   });
 }
+
 // Hauptfunktion zum Landkreise Hinzufügen
 async function addLandkreiseLayer(mapInstance) {
   geojsonLandkreise = await (await fetch('./GeoJson/landkreise.geojson')).json();
@@ -308,18 +204,23 @@ async function addLandkreiseLayer(mapInstance) {
     layout: { visibility: 'none' }
   });
 }
+
 // Suchleiste Funktionalität
 document.addEventListener('DOMContentLoaded', function () {document.getElementById('search-bar').addEventListener('input', function(e) {
   const query = e.target.value.toLowerCase();
-  const resultsList = document.getElementById('search-results');
-
+  const resultsList = document.getElementById('search-results');  
+  // Warten auf das Laden der GeoJSON-Daten
+  if (!geojsonData || !geojsonData2 || !geojsonData3) {
+    showLoader('Postleitzahlen werden geladen...');
+    return; // Verhindert das Fortfahren, bis die Daten bereit sind
+}
   // Leeren Suchbegriff
   if (query.trim() === '') {
     resultsList.innerHTML = '';
     return;
-  }
-
+  }  
   let results = [];
+
   // Landkreise durchsuchen
  if (geojsonLandkreise) {
   const landkreiseResults = geojsonLandkreise.features.filter(f =>
@@ -384,6 +285,7 @@ document.addEventListener('DOMContentLoaded', function () {document.getElementBy
 
   showSearchResults(results.slice(0, 10));
 });});
+
 // suchergebnisse anzeigen
 function showSearchResults(results) {
   const resultsList = document.getElementById('search-results');
@@ -430,6 +332,7 @@ function showSearchResults(results) {
   addGroupToList('3-Stellig PLZ', grouped.plz3);
   addGroupToList('5-Stellig PLZ', grouped.plz5);
 }
+
 // Enter-Taste Funktionalität
 document.addEventListener('DOMContentLoaded', function () {document.getElementById('search-bar').addEventListener('keydown', function(e) {
   if (e.key === 'Enter') {
@@ -443,6 +346,7 @@ document.addEventListener('DOMContentLoaded', function () {document.getElementBy
     }
   }
 });});
+
 // Klick-Handler für Suchergebnisse
 function handleResultClick(result, resultsList) {
     if (result.type === 'plz5') {
@@ -475,7 +379,6 @@ function handleResultClick(result, resultsList) {
     centerMapOnFeature(result.feature);
 }
 
-
 // Zentriert die Karte auf das ausgewählte Feature
 function centerMapOnFeature(feature) {
   if (feature && feature.geometry && feature.geometry.coordinates) {
@@ -489,6 +392,7 @@ function centerMapOnFeature(feature) {
     map.fitBounds(bounds, { padding: 40 });
   }
 }
+
 // Bundesland auswählen und alle PLZ-5stellig darin selektieren
 function selectState(stateId) {
   const selectedFeature = geojsonStates.features.find(f => f.properties.id === stateId);
@@ -506,7 +410,8 @@ function selectState(stateId) {
   document.getElementById('search-results').innerHTML = '';
   document.getElementById('search-bar').value = '';
 }
-// Klick-Handler für PLZ-5stellig
+
+// Landkreise auswählen und alle PLZ-5stellig darin selektieren
 function select5DigitPlzByPrefix(prefix) {
   console.log("select5DigitPlzByPrefix wurde aufgerufen mit:", prefix);
 
@@ -532,9 +437,14 @@ function select5DigitPlzByPrefix(prefix) {
   updateEinwohnerSumTotal();
   updateSelectedTagsUI();
 }
-// Klick-Handler für PLZ-3stellig
 
+// Klick-Handler für PLZ-5stellig
 function onPlzFillClick(e) {
+    if (!geojsonData) {
+        showLoader('Postleitzahlen werden geladen...');
+        return;
+       }
+
     const postalCode = e.features[0].properties.plz;
     const tag = `PLZ: ${postalCode}`;
 
@@ -554,8 +464,14 @@ function onPlzFillClick(e) {
     updateEinwohnerSumTotal();
     updateSelectedTagsUI();
 }
-
+// Klick-Handler für PLZ-3stellig
 function onPlz3FillClick(e) {
+  
+    if (!geojsonData) {
+            showLoader('Postleitzahlen werden geladen...');
+            return;
+        }
+
     const postalCode3 = e.features[0].properties.plz;
     const tag = `PLZ3: ${postalCode3}`;
 
@@ -579,10 +495,13 @@ function onPlz3FillClick(e) {
     updateEinwohnerSumTotal();
     updateSelectedTagsUI();
 }
-
-
-
+// Klick-Handler für PLZ-2stellig
 function onPlz2FillClick(e) {
+    if (!geojsonData) {
+            showLoader('Postleitzahlen werden geladen...');
+            return;
+        }
+
     const postalCode2 = e.features[0].properties.plz;
     const tag = `PLZ2: ${postalCode2}`;
 
@@ -606,7 +525,6 @@ function onPlz2FillClick(e) {
     updateEinwohnerSumTotal();
     updateSelectedTagsUI();
 }
-
 
 // Aktualisiert die Farben/Opazität der Layer je nach Auswahl
 function refreshSelectedFills() {
