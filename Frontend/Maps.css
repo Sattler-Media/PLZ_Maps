@@ -51,6 +51,24 @@ body {
   background-color: #f1f1f1;
 }
 
+.selected-tag {
+    display: inline-block;
+    background-color: #f0f0f0;
+    border: 1px solid #ccc;
+    border-radius: 20px;
+    padding: 5px 10px;
+    margin: 5px;
+    font-size: 14px;
+    position: relative;
+}
+
+.remove-btn {
+    margin-left: 8px;
+    color: red;
+    cursor: pointer;
+    font-weight: bold;
+}
+
 .options {
   display: flex;
   flex-direction: column; 

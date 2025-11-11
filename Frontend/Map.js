@@ -3,6 +3,7 @@
 const selectedPostalCodes = new Set();   // 5-stellig
 const selectedPostalCodes3 = new Set();  // 3-stellig
 const selectedPostalCodes2 = new Set();  // 2-stellig
+const customSelectedTags = new Set(); // Para mostrar etiquetas como 'PLZ: 38126', 'PLZ3: 38', 'Stadtkreis: Berlin'
 
 // GeoJSON-Daten für die verschiedenen PLZ-Ebenen
 let geojsonData = null;    // 5-stellig
@@ -27,7 +28,6 @@ async function getUserCenter() {
   }
   return defaultCenter;
 }
-
 // Initialisierung der Karte
 async function init() {
   const center = await getUserCenter();
@@ -49,8 +49,6 @@ map.on('load', () => {
     console.error('Fehler in der Karte:', e.error);
   });
 }
-
-
 // Hauptfunktion zum Hinzufügen aller PLZ-Layer
 async function addPostalCodeLayers(mapInstance) {
   try {
@@ -309,7 +307,6 @@ async function addLandkreiseLayer(mapInstance) {
     layout: { visibility: 'none' }
   });
 }
-
 // Suchleiste Funktionalität
 document.addEventListener('DOMContentLoaded', function () {document.getElementById('search-bar').addEventListener('input', function(e) {
   const query = e.target.value.toLowerCase();
@@ -346,7 +343,18 @@ document.addEventListener('DOMContentLoaded', function () {document.getElementBy
     }));
     results = results.concat(stateResults);
   }
-
+  // PLZ-2stellig durchsuchen
+  if (geojsonData2) {
+    const plz2Results = geojsonData2.features.filter(f =>
+      f.properties.plz && f.properties.plz.includes(query)
+    ).map(f => ({
+      type: 'plz2',
+      name: f.properties.plz,
+      plz: f.properties.plz,
+      feature: f
+    }));
+    results = results.concat(plz2Results);
+  }
   // PLZ-3stellig durchsuchen
   if (geojsonData3) {
     const plz3Results = geojsonData3.features.filter(f =>
@@ -375,7 +383,6 @@ document.addEventListener('DOMContentLoaded', function () {document.getElementBy
 
   showSearchResults(results.slice(0, 10));
 });});
-
 // suchergebnisse anzeigen
 function showSearchResults(results) {
   const resultsList = document.getElementById('search-results');
@@ -384,6 +391,7 @@ function showSearchResults(results) {
   const grouped = {
     landkreis: [],
     state: [],
+    plz2: [],
     plz3: [],
     plz5: []
   };
@@ -417,10 +425,10 @@ function showSearchResults(results) {
   // gewünschte Reihenfolge der Gruppen
   addGroupToList('Landkreise', grouped.landkreis);
   addGroupToList('Bundesland', grouped.state);
+  addGroupToList('2-Stellig PLZ', grouped.plz2);
   addGroupToList('3-Stellig PLZ', grouped.plz3);
   addGroupToList('5-Stellig PLZ', grouped.plz5);
 }
-
 // Enter-Taste Funktionalität
 document.addEventListener('DOMContentLoaded', function () {document.getElementById('search-bar').addEventListener('keydown', function(e) {
   if (e.key === 'Enter') {
@@ -436,22 +444,32 @@ document.addEventListener('DOMContentLoaded', function () {document.getElementBy
 });});
 // Klick-Handler für Suchergebnisse
 function handleResultClick(result, resultsList) {
-  if (result.type === 'plz5') {
-    select5DigitPlzByPrefix(result.plz);
+    if (result.type === 'plz5') {
+        select5DigitPlzByPrefix(result.plz);
+        selectedPostalCodes.add(result.plz);
+        customSelectedTags.add(`PLZ: ${result.plz}`);
+    } else if (result.type === 'plz3') {
+        select5DigitPlzByPrefix(result.plz);
+        selectedPostalCodes3.add(result.plz); // Añadir al set
+        customSelectedTags.add(`PLZ3: ${result.plz}`);
+    } else if (result.type === 'plz2') {
+        select5DigitPlzByPrefix(result.plz);
+        selectedPostalCodes2.add(result.plz); // Añadir al set
+        customSelectedTags.add(`PLZ2: ${result.plz}`);
+    } else if (result.type === 'state') {
+        selectPlz5InsideState(result.feature);
+        customSelectedTags.add(`Bundesland: ${result.name}`);
+    } else if (result.type === 'landkreis') {
+        selectPlz5InsideLandkreis(result.feature);
+        customSelectedTags.add(`Stadtkreis: ${result.name}`);
+    }
+
+    updateSelectedTagsUI();
+    resultsList.innerHTML = '';
+    document.getElementById('search-bar').value = '';
     centerMapOnFeature(result.feature);
-  } else if (result.type === 'plz3') {
-    select5DigitPlzByPrefix(result.plz); 
-    centerMapOnFeature(result.feature);
-  } else if (result.type === 'state') {
-  selectPlz5InsideState(result.feature); 
-  centerMapOnFeature(result.feature);
-  } else if (result.type === 'landkreis') {
-  selectPlz5InsideLandkreis(result.feature);
-  centerMapOnFeature(result.feature);
-  }  
-  resultsList.innerHTML = '';
-  document.getElementById('search-bar').value = '';
 }
+
 // Zentriert die Karte auf das ausgewählte Feature
 function centerMapOnFeature(feature) {
   if (feature && feature.geometry && feature.geometry.coordinates) {
@@ -482,9 +500,10 @@ function selectState(stateId) {
   document.getElementById('search-results').innerHTML = '';
   document.getElementById('search-bar').value = '';
 }
-
 // Klick-Handler für PLZ-5stellig
 function select5DigitPlzByPrefix(prefix) {
+  console.log("select5DigitPlzByPrefix wurde aufgerufen mit:", prefix);
+
   if (!geojsonData) return;
 
   const matchingPlz = geojsonData.features
@@ -498,28 +517,91 @@ function select5DigitPlzByPrefix(prefix) {
       selectedPostalCodes.delete(plz);
     } else {
       selectedPostalCodes.add(plz);
-    }
+    }    
   });
-
+  console.log("PLZ seleccionadas:", Array.from(selectedPostalCodes));
+  
   refreshSelectedFills();
   updateSelectedPlzLayer();
   updateEinwohnerSumTotal();
+  updateSelectedTagsUI();
 }
 // Klick-Handler für PLZ-3stellig
+
 function onPlzFillClick(e) {
-  const postalCode = e.features[0].properties.plz;
-  select5DigitPlzByPrefix(postalCode);
+    const postalCode = e.features[0].properties.plz;
+    const tag = `PLZ: ${postalCode}`;
+
+    if (customSelectedTags.has(tag)) {
+        // Deseleccionar
+        customSelectedTags.delete(tag);
+        selectedPostalCodes.delete(postalCode);
+    } else {
+        // Seleccionar
+        select5DigitPlzByPrefix(postalCode);
+        selectedPostalCodes.add(postalCode);
+        customSelectedTags.add(tag);
+    }
+
+    refreshSelectedFills();
+    updateSelectedPlzLayer();
+    updateEinwohnerSumTotal();
+    updateSelectedTagsUI();
 }
-// Klick-Handler für PLZ-2stellig
+
 function onPlz3FillClick(e) {
-  const postalCode3 = e.features[0].properties.plz;
-  select5DigitPlzByPrefix(postalCode3);
+    const postalCode3 = e.features[0].properties.plz;
+    const tag = `PLZ3: ${postalCode3}`;
+
+    if (customSelectedTags.has(tag)) {
+        // Deseleccionar
+        customSelectedTags.delete(tag);
+        selectedPostalCodes3.delete(postalCode3);
+        // Eliminar todos los PLZ de 5 dígitos que empiezan con este prefijo
+        Array.from(selectedPostalCodes).forEach(code => {
+            if (code.startsWith(postalCode3)) selectedPostalCodes.delete(code);
+        });
+    } else {
+        // Seleccionar
+        select5DigitPlzByPrefix(postalCode3);
+        selectedPostalCodes3.add(postalCode3);
+        customSelectedTags.add(tag);
+    }
+
+    refreshSelectedFills();
+    updateSelectedPlzLayer();
+    updateEinwohnerSumTotal();
+    updateSelectedTagsUI();
 }
-// Klick-Handler für PLZ-2stellig
+
+
+
 function onPlz2FillClick(e) {
-  const postalCode2 = e.features[0].properties.plz;
-  select5DigitPlzByPrefix(postalCode2);
+    const postalCode2 = e.features[0].properties.plz;
+    const tag = `PLZ2: ${postalCode2}`;
+
+    if (customSelectedTags.has(tag)) {
+        // Deseleccionar
+        customSelectedTags.delete(tag);
+        selectedPostalCodes2.delete(postalCode2);
+        // Eliminar todos los PLZ de 5 dígitos que empiezan con este prefijo
+        Array.from(selectedPostalCodes).forEach(code => {
+            if (code.startsWith(postalCode2)) selectedPostalCodes.delete(code);
+        });
+    } else {
+        // Seleccionar
+        select5DigitPlzByPrefix(postalCode2);
+        selectedPostalCodes2.add(postalCode2);
+        customSelectedTags.add(tag);
+    }
+
+    refreshSelectedFills();
+    updateSelectedPlzLayer();
+    updateEinwohnerSumTotal();
+    updateSelectedTagsUI();
 }
+
+
 // Aktualisiert die Farben/Opazität der Layer je nach Auswahl
 function refreshSelectedFills() {
   // PLZ-5
@@ -535,7 +617,6 @@ function refreshSelectedFills() {
     0.4,
     0
   ]);
-
   // PLZ-3
   map.setPaintProperty('PLZ3-fill', 'fill-color', [
     'case',
@@ -549,7 +630,6 @@ function refreshSelectedFills() {
     0.4,
     0.3
   ]);
-
   // PLZ-2
   map.setPaintProperty('PLZ2-fill', 'fill-color', [
     'case',
@@ -631,12 +711,11 @@ function updateEinwohnerSumTotal() {
 }
 // Karte initialisieren
 init();
-
 function clearAllSelections() {
   selectedPostalCodes.clear();
   selectedPostalCodes3.clear();
   selectedPostalCodes2.clear();
-
+  updateSelectedTagsUI();
   refreshSelectedFills();
   updateSelectedPlzLayer();
   updateEinwohnerSumTotal();
@@ -655,7 +734,6 @@ function clearAllSelections() {
     map.setLayoutProperty('Landkreis-borders', 'visibility', 'none');
   }
 }
-
 document.addEventListener('DOMContentLoaded', function () {
   const clearBtn = document.getElementById('clearSelections');
   if (clearBtn) {
@@ -664,10 +742,7 @@ document.addEventListener('DOMContentLoaded', function () {
     console.warn('clearSelections button not found in DOM');
   }
 });
-
 document.body.style.userSelect = 'none'; // Verhindert Textauswahl
-
-
 // --- Spatial Index für schnellere Geometrie-Abfragen ---
 function buildPlzSpatialIndex() {
     if (!geojsonData) return;
@@ -684,7 +759,6 @@ function buildPlzSpatialIndex() {
     });
     plzSpatialIndex.load(items);
 }
-
 // Neue Version mit Spatial Index
 function selectPlz5InsideState(stateFeature) {
     if (!plzSpatialIndex || !stateFeature) return;
@@ -712,7 +786,6 @@ function selectPlz5InsideState(stateFeature) {
     updateSelectedPlzLayer();
     updateEinwohnerSumTotal();
 }
-
 function selectPlz5InsideLandkreis(landkreisFeature) {
     if (!plzSpatialIndex || !landkreisFeature) return;
     const landkreisBbox = turf.bbox(landkreisFeature);
@@ -739,4 +812,54 @@ function selectPlz5InsideLandkreis(landkreisFeature) {
     updateSelectedPlzLayer();
     updateEinwohnerSumTotal();
   }
+
+function updateSelectedTagsUI() {
+    const container = document.getElementById('selected-tags-container');
+    container.innerHTML = '';
+
+    customSelectedTags.forEach(tag => {
+        const tagEl = document.createElement('div');
+        tagEl.className = 'selected-tag';
+        tagEl.textContent = tag;
+
+        const removeBtn = document.createElement('span');
+        removeBtn.textContent = '×';
+        removeBtn.className = 'remove-btn';
+        removeBtn.onclick = () => {
+            customSelectedTags.delete(tag);
+
+            if (tag.startsWith('PLZ:')) {
+                const plz = tag.replace('PLZ: ', '');
+                selectedPostalCodes.delete(plz);
+            } else if (tag.startsWith('PLZ3:')) {
+                const plz3 = tag.replace('PLZ3: ', '');
+                selectedPostalCodes3.delete(plz3);
+                // Eliminar todos los PLZ de 5 dígitos que empiezan con plz3
+                Array.from(selectedPostalCodes).forEach(code => {
+                    if (code.startsWith(plz3)) selectedPostalCodes.delete(code);
+                });
+            } else if (tag.startsWith('PLZ2:')) {
+                const plz2 = tag.replace('PLZ2: ', '');
+                selectedPostalCodes2.delete(plz2);
+                // Eliminar todos los PLZ de 5 dígitos que empiezan con plz2
+                Array.from(selectedPostalCodes).forEach(code => {
+                    if (code.startsWith(plz2)) selectedPostalCodes.delete(code);
+                });
+            } else if (tag.startsWith('Stadtkreis:') || tag.startsWith('Bundesland:')) {
+                selectedPostalCodes.clear();
+                selectedPostalCodes3.clear();
+                selectedPostalCodes2.clear();
+            }
+
+            refreshSelectedFills();
+            updateSelectedPlzLayer();
+            updateEinwohnerSumTotal();
+            updateSelectedTagsUI();
+        };
+
+        tagEl.appendChild(removeBtn);
+        container.appendChild(tagEl);
+    });
+}
+
 // --- ENDE Spatial Index ---
