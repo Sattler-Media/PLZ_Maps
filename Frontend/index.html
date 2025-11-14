@@ -15,7 +15,8 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
   <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script> 
   <script src="Map.js"></script> 
-  <script type="module" src="preisHandler.js"></script> 
+  <script type="module" src="preisHandler.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/pako@2.1.0/dist/pako.min.js"></script>
   <script>
     document.addEventListener("DOMContentLoaded", function () {
       const versandTyp = document.getElementById("versandTyp");
@@ -155,24 +156,12 @@
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', function () {
-  const offcanvasElement = document.getElementById('postwurfSpezialCanvas'); // 2. offcanvas ID
-  const versandtypSelect = document.querySelector('select[name="versandTyp"]'); // Selektor listening für das Versandtyp-Dropdown
-  const postwurfspezialOption = document.createElement('option');
-  postwurfspezialOption.value = 'postwurfsp';
-  postwurfspezialOption.textContent = 'Postwurf Spezial';
-  postwurfspezialOption.id = 'postwurfspezial-option';
-
-  // Option zeigen beim Öffnen des offcanvas
-  offcanvasElement.addEventListener('show.bs.offcanvas', function () {   
-    versandtypSelect.value = 'postwurfsp';
+document.getElementById('postwurfSpezialCanvas')
+  .addEventListener('show.bs.offcanvas', async () => {
+    // Dynamisch das Modul laden
+    const module = await import('./postwurfSpezial.js');
+    module.initPostwurfSpezial();
   });
-
-  // Option ausblenden beim Schließen des offcanvas
-  offcanvasElement.addEventListener('hidden.bs.offcanvas', function () {
-    versandtypSelect.value = 'postaktuell';
-  });
-});
 </script>
 </body>
 </html>
