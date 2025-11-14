@@ -29,6 +29,14 @@
       });
     });
   </script>
+  <script>
+    document.getElementById('postwurfSpezialCanvas')
+      .addEventListener('show.bs.offcanvas', async () => {
+        // Dynamisch das Modul laden
+        const module = await import('./postwurfSpezial.js');
+        module.initPostwurfSpezial();
+      });
+</script>
   
 </head>
 <body class="p-3 m-0 border-0 bd-example m-0 border-0"> 
@@ -154,15 +162,6 @@
     <button type="button" class="btn btn-outline-danger" id="clearSelections">Alle Selektionen löschen</button> 
  </div>     
 </div>
-
-<script>
-document.getElementById('postwurfSpezialCanvas')
-  .addEventListener('show.bs.offcanvas', async () => {
-    // Dynamisch das Modul laden
-    const module = await import('./postwurfSpezial.js');
-    module.initPostwurfSpezial();
-  });
-</script>
 </body>
 </html>
 
