@@ -672,39 +672,43 @@ function updateSelectedPlzLayer() {
 function updateEinwohnerSumTotal() {
   let einwohnerSum = 0;
 
-  const selected5 = Array.from(selectedPostalCodes);
-  const selected3 = Array.from(selectedPostalCodes3);
-  const selected2 = Array.from(selectedPostalCodes2);
+  // Convertimos a Set para consultas rápidas
+  const sel5 = new Set(selectedPostalCodes);
+  const sel3 = new Set(selectedPostalCodes3);
+  const sel2 = new Set(selectedPostalCodes2);
 
-  const isContained = (plz, higherLevelSet) => {
-    return higherLevelSet.some(higherPlz => plz.startsWith(higherPlz));
-  };
+  // Auxiliares: ¿PLZ está cubierto por un prefijo de nivel superior?
+  const isCoveredBy3 = plz5 => Array.from(sel3).some(pref3 => plz5.startsWith(pref3));
+  const isCoveredBy2 = plzX => Array.from(sel2).some(pref2 => plzX.startsWith(pref2));
 
-  if (geojsonData) {
-    geojsonData.features.forEach(feature => {
+  // Sumar PLZ-5 (solo si no está cubierto por prefijos 3 o 2)
+  if (geojsonData && geojsonData.features) {
+    for (const feature of geojsonData.features) {
       const plz = feature.properties.plz;
-      if (selected5.includes(plz) && !isContained(plz, selected3) && !isContained(plz, selected2)) {
+      if (sel5.has(plz) && !isCoveredBy3(plz) && !isCoveredBy2(plz)) {
         einwohnerSum += Number(feature.properties.einwohner) || 0;
       }
-    });
+    }
   }
 
-  if (geojsonData3) {
-    geojsonData3.features.forEach(feature => {
-      const plz = feature.properties.plz;
-      if (selected3.includes(plz) && !isContained(plz, selected2)) {
+  // Sumar PLZ-3 (solo si no está cubierto por prefijos 2)
+  if (geojsonData3 && geojsonData3.features) {
+    for (const feature of geojsonData3.features) {
+      const plz3 = feature.properties.plz;
+      if (sel3.has(plz3) && !isCoveredBy2(plz3)) {
         einwohnerSum += Number(feature.properties.einwohner) || 0;
       }
-    });
+    }
   }
 
-  if (geojsonData2) {
-    geojsonData2.features.forEach(feature => {
-      const plz = feature.properties.plz;
-      if (selected2.includes(plz)) {
+  // Sumar PLZ-2 (siempre que esté seleccionado)
+  if (geojsonData2 && geojsonData2.features) {
+    for (const feature of geojsonData2.features) {
+      const plz2 = feature.properties.plz;
+      if (sel2.has(plz2)) {
         einwohnerSum += Number(feature.properties.einwohner) || 0;
       }
-    });
+    }
   }
 
   const einwohnerInput = document.getElementById('Einwohner');
