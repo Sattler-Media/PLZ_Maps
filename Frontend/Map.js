@@ -2,7 +2,7 @@
 const selectedPostalCodes = new Set();   // 5-stellig
 const selectedPostalCodes3 = new Set();  // 3-stellig
 const selectedPostalCodes2 = new Set();  // 2-stellig
-const customSelectedTags = new Set(); // Para mostrar etiquetas como 'PLZ: 38126', 'PLZ3: 38', 'Stadtkreis: Berlin'
+const customSelectedTags = new Set(); // zeigt benutzerdefinierte Tags an
 const tagPlzMap = new Map();
 const circleWorker = new Worker('./worker.js');
 const { feature } = topojson;
@@ -840,11 +840,9 @@ function selectPlz5InsideRegion(regionFeature, options = {}) {
 function selectPlz5InsideState(stateFeature) {
     return selectPlz5InsideRegion(stateFeature, { minOverlap: 0.2 });
 }
-
 function selectPlz5InsideLandkreis(landkreisFeature) {
     return selectPlz5InsideRegion(landkreisFeature, { minOverlap: 0.2 });
 }
-
 
 // PLZ-5stellig innerhalb eines Landkreises selektieren
 function updateSelectedTagsUI() {
@@ -912,10 +910,14 @@ async function init() {
 
 map.on('load', () => {
   console.log('Karte erfolgreich geladen!');
-
+//alle Layer hinzufügen
   addPostalCodeLayers(map);
   addStatesLayer(map);
   addLandkreiseLayer(map);
+  addCircleLayer(map); 
+    setupCircleControls(); 
+    updateCirclesOnMove(); 
+
 });
 
   map.on('error', (e) => {
