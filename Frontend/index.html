@@ -4,47 +4,16 @@
   <meta charset="UTF-8">
   <link rel="stylesheet" href="Maps.css" />
    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">    
     
   <title>Preisberechnung</title> 
-   <!-- Scripts -->
-  <script src="https://cdn.jsdelivr.net/npm/@turf/turf@6/turf.min.js"></script>
-  <script src="https://unpkg.com/rbush@2.0.1/rbush.min.js"></script>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
-  <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script> 
-  <script src="Map.js"></script> 
-  <script type="module" src="preisHandler.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/pako@2.1.0/dist/pako.min.js"></script>
-  <script>
-    document.addEventListener("DOMContentLoaded", function () {
-      const versandTyp = document.getElementById("versandTyp");
-      versandTyp.addEventListener("change", function () {
-        if (versandTyp.value === "postwurfsp") {
-          const offcanvasElement = document.getElementById("postwurfSpezialCanvas");
-          const bsOffcanvas = new bootstrap.Offcanvas(offcanvasElement);
-          bsOffcanvas.show();
-        }
-      });
-    });
-  </script>
-  <script>
-    document.getElementById('postwurfSpezialCanvas')
-      .addEventListener('show.bs.offcanvas', async () => {
-        // Dynamisch das Modul laden
-        const module = await import('./postwurfSpezial.js');
-        module.initPostwurfSpezial();
-      });
-</script>
-  
+    
 </head>
 <body class="p-3 m-0 border-0 bd-example m-0 border-0"> 
-
 <!-- Ausgewählte Tags Container -->
   <div id="selected-tags-container" style="margin: 20px;"></div>   
 <!-- Steuerungselemente --> 
-  <div id="map-controls">
+<div id="map-controls">
           <!-- Tabelle -->
       <div class="header">
         <h1>Preisberechnung</h1> 
@@ -140,12 +109,12 @@
         </div>
       </div>             
     </div>    
-  </div>
+</div>
    <!-- Loader -->
-  <div id="loader">
-    <div class="spinner"></div>
-    <span id="loader-text">Lade Karte...</span>
-  </div>  
+<div id="loader">
+  <div class="spinner"></div>
+  <span id="loader-text">Lade Karte...</span>
+</div>  
 <!-- Karte -->  
 <div id="map"> 
   <div class="d-grid gap-2 d-md-flex justify-content-md-end"> 
@@ -155,14 +124,56 @@
     </button> 
         <!-- Searchbar und Ergebnisse -->
     <div style="position: relative;">
-      <input type="text" id="search-bar" placeholder="Stadt, Bundesland oder PLZ" autocomplete="off" class="form-control" />
+      <input type="text" id="search-bar" placeholder="Stadt/Bundesland/PLZ" autocomplete="off" class="form-control" />
       <ul id="search-results" class="list-group position-absolute w-100" style="z-index: 1000;"></ul>
     </div> 
+
+    <!-- Liste Umkreissuche -->
+    <div class="dropdown" id="circle-selection">
+      <button class="btn btn-secondary dropdown-toggle" type="button" id="umkreis" data-bs-toggle="dropdown" aria-expanded="false">
+        Umkreissuche
+      </button>
+      <ul class="dropdown-menu" aria-labelledby="umkreis">
+        <li><a class="dropdown-item umkreis-option" href="#" data-radius="5">5 km</a></li>
+        <li><a class="dropdown-item umkreis-option" href="#" data-radius="10">10 km</a></li>
+        <li><a class="dropdown-item umkreis-option" href="#" data-radius="15">15 km</a></li>
+        <li><a class="dropdown-item umkreis-option" href="#" data-radius="20">20 km</a></li>
+      </ul>
+    </div>
         <!-- Resetknopf -->
     <button type="button" class="btn btn-outline-danger" id="clearSelections">Alle Selektionen löschen</button> 
  </div>     
 </div>
+ <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/topojson-client@3"></script>
+  <script src="https://cdn.jsdelivr.net/npm/pako@2.1.0/dist/pako.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@turf/turf@6/turf.min.js"></script>
+  <script src="https://unpkg.com/rbush@2.0.1/rbush.min.js"></script>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script> 
+  <script src="Map.js"></script> 
+  <script type="module" src="preisHandler.js"></script>
+  
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const versandTyp = document.getElementById("versandTyp");
+      versandTyp.addEventListener("change", function () {
+        if (versandTyp.value === "postwurfsp") {
+          const offcanvasElement = document.getElementById("postwurfSpezialCanvas");
+          const bsOffcanvas = new bootstrap.Offcanvas(offcanvasElement);
+          bsOffcanvas.show();
+        }
+      });
+    });
+  </script>
+  <script>
+    document.getElementById('postwurfSpezialCanvas')
+      .addEventListener('show.bs.offcanvas', async () => {
+        // Dynamisch das Modul laden
+        const module = await import('./postwurfSpezial.js');
+        module.initPostwurfSpezial();
+      });
+  </script>
 </body>
 </html>
-
-
