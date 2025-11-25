@@ -528,8 +528,7 @@ function onPlzFillClick(e) {
         selectedPostalCodes.delete(postalCode);
     } else {
         // Seleccionar
-        select5DigitPlzByPrefix(postalCode);
-        selectedPostalCodes.add(postalCode);
+        select5DigitPlzByPrefix(postalCode);        
         customSelectedTags.add(tag);
     }
 
@@ -711,17 +710,25 @@ function updateEinwohnerSumTotal() {
   const einwohnerInput = document.getElementById('Einwohner');
   if (einwohnerInput) einwohnerInput.value = einwohnerSum;
 }
+
 // Alle Auswahlen löschen
 function clearAllSelections() {
+  //1) alle Auswahl-Sets leeren
   selectedPostalCodes.clear();
   selectedPostalCodes3.clear();
   selectedPostalCodes2.clear();
+
+  //2) alle Tags und deren Zuordnung zu PLZ leeren
+  customSelectedTags.clear();
+  tagPlzMap.clear();          
+
+  // 3) Ui-Updates
   updateSelectedTagsUI();
   refreshSelectedFills();
   updateSelectedPlzLayer();
   updateEinwohnerSumTotal();
 
-  // versteckt Bundesländer und Landkreise Layer
+  // 4) Sichtbarkeit der Layer für States und Landkreise ausblenden, falls sichtbar
   if (map.getLayer('States-fill')) {
     map.setLayoutProperty('States-fill', 'visibility', 'none');
   }
@@ -735,6 +742,7 @@ function clearAllSelections() {
     map.setLayoutProperty('Landkreis-borders', 'visibility', 'none');
   }
 }
+
 // Button-Event Listener zum Löschen aller Auswahlen
 document.addEventListener('DOMContentLoaded', function () {
   const clearBtn = document.getElementById('clearSelections');
