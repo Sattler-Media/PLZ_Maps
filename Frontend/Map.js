@@ -31,6 +31,7 @@ async function loadCompressedTopoJSON(url, objectName) {
 
     return feature(topology, topology.objects[objectName]); // GeoJSON umwandeln
 }
+
 // Loader-Funktionen
 function showLoader(message = 'Lade Karte...') {
     const loader = document.getElementById('loader');
@@ -41,6 +42,7 @@ function showLoader(message = 'Lade Karte...') {
 function hideLoader() {
     document.getElementById('loader').style.display = 'none';
 }
+// --- Ende Loader-Funktionen ---
 
 // --- Dynamische Kreise Funktionen---
 function addCircleLayer(map) {
@@ -66,13 +68,11 @@ function addCircleLayer(map) {
         }
     }); 
 }
-
 // Kreise vom Worker anfragen
 function requestCircles(radii) {
   const center = map.getCenter().toArray();
   circleWorker.postMessage({ type: 'circles', center: center, radii: radii });
 }
-
 // Worker Antwort für Kreise verarbeiten
 circleWorker.onmessage = (e) => {
   if (e.data.type === 'FeatureCollection') {
@@ -90,8 +90,7 @@ circleWorker.onmessage = (e) => {
     updateEinwohnerSumTotal();
     updateSelectedTagsUI();
   }
-};
-
+}
 // HTML-Buttons für Kreise einrichten
 function setupCircleControls() {
     document.querySelectorAll('#circle-selection .umkreis-option').forEach(btn => {
@@ -110,7 +109,6 @@ function setupCircleControls() {
     });
 }
 // Aktualisieren der Kreise beim Bewegen der Karte, wenn eine Auswahl aktiv ist
-
 function updateCirclesOnMove() {
     map.on('moveend', () => {
         const activeRadius = document.querySelector('#circle-selection button.active')?.dataset.radius;
@@ -124,6 +122,7 @@ function updateCirclesOnMove() {
     });
 }
 // --- Ende der Funktionen für dynamische Kreise ---
+
 
 // Benutzerzentrum bestimmen (mit Fallback auf Berlin)
 async function getUserCenter() {
@@ -222,7 +221,6 @@ async function addPostalCodeLayers(mapInstance) {
         hideLoader();
     }
 }
-
 // Hauptfunktion zum Bundesländer Hinzufügen 
 async function addStatesLayer(mapInstance) {
   geojsonStates = await loadCompressedTopoJSON('./Json/states.json.gz', 'states');
@@ -249,7 +247,6 @@ async function addStatesLayer(mapInstance) {
     layout: { visibility: 'none' }
   });
 }
-
 // Hauptfunktion zum Landkreise Hinzufügen
 async function addLandkreiseLayer(mapInstance) {
   geojsonLandkreise = await loadCompressedTopoJSON('./Json/landkreise.json.gz', 'landkreise');
@@ -281,6 +278,7 @@ async function addLandkreiseLayer(mapInstance) {
     layout: { visibility: 'none' }
   });
 }
+// --- Ende der Funktionen für PLZ-Layer---
 
 // Suchleiste Funktionalität
 document.addEventListener('DOMContentLoaded', function () {document.getElementById('search-bar').addEventListener('input', function(e) {
@@ -362,7 +360,6 @@ document.addEventListener('DOMContentLoaded', function () {document.getElementBy
 
   showSearchResults(results.slice(0, 10));
 });});
-
 // suchergebnisse anzeigen
 function showSearchResults(results) {
   const resultsList = document.getElementById('search-results');
@@ -409,7 +406,6 @@ function showSearchResults(results) {
   addGroupToList('3-Stellig PLZ', grouped.plz3);
   addGroupToList('5-Stellig PLZ', grouped.plz5);
 }
-
 // Enter-Taste Funktionalität
 document.addEventListener('DOMContentLoaded', function () {document.getElementById('search-bar').addEventListener('keydown', function(e) {
   if (e.key === 'Enter') {

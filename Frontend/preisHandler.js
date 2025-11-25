@@ -95,8 +95,8 @@ export async function calculatePreis(einwohnerSum) {
         }
 
     } catch (err) {
-        console.error('Fehler bei Preisberechnung:', err.message);
-        if (fehlerDiv) fehlerDiv.textContent = 'Fehler bei der Preisberechnung: ' + err.message;
+        console.error('Fehler bei Preisberechnung: ', err.message);
+        if (fehlerDiv) fehlerDiv.innerHTML = 'Fehler bei der Preisberechnung:<br>' + err.message;
         if (preisInput) preisInput.value = '';
     }
 }
