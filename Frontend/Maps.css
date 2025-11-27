@@ -1,6 +1,9 @@
 html, body {
   height: 100%;
+  margin: 0;
+  padding: 0;
 }
+
 body {
   -webkit-user-select: none;
   -moz-user-select: none;
@@ -36,28 +39,29 @@ body {
 }
 
 #map {
-  width: 60%;
-  height: 60%;
-  margin: 40px auto 40px auto; 
-  position: relative;      
+  width: 90%;
+  height: 60vh;
+  margin: 40px auto;
+  position: relative;
 }
 
 #map-controls {
   position: absolute;
-  bottom: 200px;
-  left: 1180px;
+  bottom: 2%;
+  left: 45%;
   background-color: white;
   padding: 10px;
   border-radius: 5px;
   box-shadow: 0 2px 6px rgba(0,0,0,0.3);
   z-index: 1000;
   display: flex;
-  flex-direction: column; 
+  flex-direction: column;
   text-align: left;
-  max-width: fit-content; 
+  max-width: 90%;
 }
 
 #search-results {
+<<<<<<< HEAD
   max-height: 300px;
   overflow-y: auto;
   background-color: white;
@@ -107,10 +111,38 @@ body {
   flex-direction: column; 
   text-align: left;
   max-width: fit-content;
+=======
+  position: absolute;
+  bottom: 5%;  
+  right: 5%;
+  padding: 10px;
+  border-radius: 5px;
+  z-index: 1000;
+  text-align: left;
+  max-width: 90%;
+>>>>>>> 76a234cfdc8598c2ebadb09b8466938ca1671237
 }
+
+.options,
+.postwurfsp-options,
 .footer {
   display: flex;
-  flex-direction: column; 
+  flex-direction: column;
   text-align: left;
-  max-width: fit-content;
+  max-width: 100%;
+}
+
+/* Responsive Anpassungen */
+@media (max-width: 768px) {
+  #map {
+    width: 100%;
+    height: 50vh;
+  }
+
+  #map-controls,
+  #search-results {
+    position: static;
+    margin: 10px auto;
+    width: 90%;
+  }
 }
