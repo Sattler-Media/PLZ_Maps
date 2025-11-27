@@ -1,9 +1,6 @@
 html, body {
   height: 100%;
-  margin: 0;
-  padding: 0;
 }
-
 body {
   -webkit-user-select: none;
   -moz-user-select: none;
@@ -11,59 +8,109 @@ body {
   user-select: none;
 }
 
+#loader {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 18px;
+    background: white;
+    padding: 10px 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    z-index: 9999;
+}
+
+.spinner {
+    width: 24px;
+    height: 24px;
+    border: 3px solid #ccc;
+    border-top: 3px solid #007bff; /* Color del spinner */
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
 #map {
-  width: 90%;
-  height: 60vh;
-  margin: 40px auto;
-  position: relative;
+  width: 60%;
+  height: 60%;
+  margin: 40px auto 40px auto; 
+  position: relative;      
 }
 
 #map-controls {
   position: absolute;
-  bottom: 2%;
-  left: 45%;
+  bottom: 200px;
+  left: 1180px;
   background-color: white;
   padding: 10px;
   border-radius: 5px;
   box-shadow: 0 2px 6px rgba(0,0,0,0.3);
   z-index: 1000;
   display: flex;
-  flex-direction: column;
+  flex-direction: column; 
   text-align: left;
-  max-width: 90%;
+  max-width: fit-content; 
 }
 
 #search-results {
-  position: absolute;
-  bottom: 5%;  
-  right: 5%;
-  padding: 10px;
-  border-radius: 5px;
-  z-index: 1000;
-  text-align: left;
-  max-width: 90%;
+  max-height: 300px;
+  overflow-y: auto;
+  background-color: white;
+  border: 1px solid #ccc;
+  border-top: none;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  list-style: none;
+  margin: 0;
+  padding: 0;
 }
 
-.options,
-.postwurfsp-options,
+#search-results li {
+  padding: 10px;
+  cursor: pointer;
+}
+
+#search-results li:hover {
+  background-color: #f1f1f1;
+}
+
+.selected-tag {
+    display: inline-block;
+    background-color: #f0f0f0;
+    border: 1px solid #ccc;
+    border-radius: 20px;
+    padding: 5px 10px;
+    margin: 5px;
+    font-size: 14px;
+    position: relative;
+}
+
+.remove-btn {
+    margin-left: 8px;
+    color: red;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.options {
+  display: flex;
+  flex-direction: column; 
+  text-align: left;
+  max-width: fit-content;
+}
+.postwurfsp-options {
+  display: flex;
+  flex-direction: column; 
+  text-align: left;
+  max-width: fit-content;
+}
 .footer {
   display: flex;
-  flex-direction: column;
+  flex-direction: column; 
   text-align: left;
-  max-width: 100%;
-}
-
-/* Responsive Anpassungen */
-@media (max-width: 768px) {
-  #map {
-    width: 100%;
-    height: 50vh;
-  }
-
-  #map-controls,
-  #search-results {
-    position: static;
-    margin: 10px auto;
-    width: 90%;
-  }
+  max-width: fit-content;
 }
