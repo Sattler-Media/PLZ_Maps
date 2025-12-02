@@ -507,7 +507,9 @@ function select5DigitPlzByPrefix(prefix) {
   updateEinwohnerSumTotal();
   updateSelectedTagsUI();
 }
+// ende der Suchleiste Funktionalität
 
+//Layer Funktionalität und Hauptkontrolle der Karte
 // Klick-Handler für PLZ-5stellig
 function onPlzFillClick(e) {
     if (!geojsonData) {
@@ -533,7 +535,6 @@ function onPlzFillClick(e) {
     updateEinwohnerSumTotal();
     updateSelectedTagsUI();
 }
-
 // Klick-Handler für PLZ-3stellig
 function onPlz3FillClick(e) {
 
@@ -565,7 +566,6 @@ function onPlz3FillClick(e) {
     updateEinwohnerSumTotal();
     updateSelectedTagsUI();
 }
-
 // Klick-Handler für PLZ-2stellig
 function onPlz2FillClick(e) {
     if (!geojsonData) {
@@ -596,7 +596,6 @@ function onPlz2FillClick(e) {
     updateEinwohnerSumTotal();
     updateSelectedTagsUI();
 }
-
 // Aktualisiert die Farben/Opazität der Layer je nach Auswahl
 function refreshSelectedFills() {
   // PLZ-5
@@ -639,7 +638,6 @@ function refreshSelectedFills() {
     0.3
   ]);
 }
-
 // Aktualisiert den Layer für immer sichtbare Selektion
 function updateSelectedPlzLayer() {
   const selectedFeatures = [];
@@ -663,7 +661,6 @@ function updateSelectedPlzLayer() {
     features: selectedFeatures
   });
 }
-
 // Summiert die Einwohner aus allen Layern und zeigt sie im Input an
 function updateEinwohnerSumTotal() {
   let einwohnerSum = 0;
@@ -710,7 +707,6 @@ function updateEinwohnerSumTotal() {
   const einwohnerInput = document.getElementById('Einwohner');
   if (einwohnerInput) einwohnerInput.value = einwohnerSum;
 }
-
 // Alle Auswahlen löschen
 function clearAllSelections() {
   //1) alle Auswahl-Sets leeren
@@ -742,7 +738,6 @@ function clearAllSelections() {
     map.setLayoutProperty('Landkreis-borders', 'visibility', 'none');
   }
 }
-
 // Button-Event Listener zum Löschen aller Auswahlen
 document.addEventListener('DOMContentLoaded', function () {
   const clearBtn = document.getElementById('clearSelections');
@@ -752,6 +747,7 @@ document.addEventListener('DOMContentLoaded', function () {
     console.warn('clearSelections button not found in DOM');
   }
 });
+
 // Verhindert Textauswahl auf der Seite
 document.body.style.userSelect = 'none'; // Verhindert Textauswahl
 
@@ -765,7 +761,6 @@ function buildPlzSpatialIndex() {
     console.log('Spatial Index erfolgreich erstellt!');
   };
 }
-
 // PLZ-5stellig innerhalb einer Region selektieren (allgemeine Funktion)
 function selectPlz5InsideRegion(regionFeature, options = {}) {
     const { minOverlap = 0.2 } = options;
@@ -891,6 +886,7 @@ function updateSelectedTagsUI() {
     });
   });
 }
+//Ende der Spatial Index Funktionen
 
 // Initialisierung der Karte
 async function init() {
