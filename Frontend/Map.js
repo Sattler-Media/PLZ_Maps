@@ -18,6 +18,7 @@ let geojsonStates = null;  // Bundesländer
 let geojsonLandkreise = null; // Landkreise
 let map = null; // Map-Instanz
 let plzSpatialIndex = null
+let circleSelectionEnabled = true;
 
 // compressed TopoJSON laden und dekomprimieren
 async function loadCompressedTopoJSON(url, objectName) {
@@ -52,8 +53,9 @@ function hideLoader() {
 slider.addEventListener('input', () => {
     const radius = parseInt(slider.value);
     circleValue.textContent = `${radius} km`;
-    requestCircles([radius]); // Llama a tu función existente
+    requestCircles([radius]); 
 });
+
 
 function addCircleLayer(map) {
     map.addSource('selection-circles', {
@@ -61,22 +63,22 @@ function addCircleLayer(map) {
         data: { type: 'FeatureCollection', features: [] }
     });
 
-    map.addLayer({
+
+      map.addLayer({
         id: 'selection-circles-layer',
         type: 'fill',
         source: 'selection-circles',
         paint: {
-            'fill-color': [
-                'match',
-                ['get', 'radius'],
-                5, '#007cbf',
-                10, '#2ECC40',
-                15, '#FF851B',
-                '#bf3600ff'
-            ],
-            'fill-opacity': 0.3
+          'fill-color': [
+            'interpolate', ['linear'], ['get', 'radius'],
+            1, '#2ECC40',   // verde en radios pequeños
+            25, '#FF851B',  // naranja en radios medios
+            50, '#FF4136'   // rojo en radios grandes
+          ],
+          'fill-opacity': 0.3
         }
-    }); 
+      });
+
 }
 // Kreise vom Worker anfragen
 function requestCircles(radii) {
@@ -102,22 +104,7 @@ circleWorker.onmessage = (e) => {
   }
 }
 // HTML-Buttons für Kreise einrichten
-function setupCircleControls() {
-    document.querySelectorAll('#circle-selection .umkreis-option').forEach(btn => {
-        btn.addEventListener('click', () => {
-            document.querySelectorAll('#circle-selection .umkreis-option').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            const radius = btn.dataset.radius;
-            if (radius === 'none') {
-                map.getSource('selection-circles').setData({ type: 'FeatureCollection', features: [] });
-            } else if (radius === 'all') {
-                requestCircles([5, 10, 15]);
-            } else {
-                requestCircles([parseInt(radius)]);
-            }
-        });
-    });
-}
+
 // Aktualisieren der Kreise beim Bewegen der Karte, wenn eine Auswahl aktiv ist
 function updateCirclesOnMove() {
     map.on('moveend', () => {
@@ -917,8 +904,7 @@ map.on('load', () => {
   addStatesLayer(map);
   addLandkreiseLayer(map);
   addCircleLayer(map); 
-    setupCircleControls(); 
-    updateCirclesOnMove(); 
+  updateCirclesOnMove(); 
 
 });
 
