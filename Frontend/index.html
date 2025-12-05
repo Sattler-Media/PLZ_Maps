@@ -129,17 +129,10 @@
     </div> 
 
     <!-- Liste Umkreissuche -->
-    <div class="dropdown" id="circle-selection">
-      <button class="btn btn-secondary dropdown-toggle" type="button" id="umkreis" data-bs-toggle="dropdown" aria-expanded="false">
-        Umkreissuche
-      </button>
-      <ul class="dropdown-menu" aria-labelledby="umkreis">
-        <li><a class="dropdown-item umkreis-option" href="#" data-radius="none">Keine</a></li>
-        <li><a class="dropdown-item umkreis-option" href="#" data-radius="5">5 km</a></li>
-        <li><a class="dropdown-item umkreis-option" href="#" data-radius="10">10 km</a></li>
-        <li><a class="dropdown-item umkreis-option" href="#" data-radius="15">15 km</a></li>
-        <li><a class="dropdown-item umkreis-option" href="#" data-radius="20">20 km</a></li>
-      </ul>
+    <div id="circle-slider-container">
+      <label for="circle-slider">Radio (km): </label>
+      <input type="range" id="circle-slider" min="0" max="50" step="1" value="1">
+      <span id="circle-value">5 km</span>
     </div>
         <!-- Resetknopf -->
     <button type="button" class="btn btn-outline-danger" id="clearSelections">Alle Selektionen löschen</button> 

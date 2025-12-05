@@ -6,6 +6,9 @@ const customSelectedTags = new Set(); // zeigt benutzerdefinierte Tags an
 const tagPlzMap = new Map();
 const circleWorker = new Worker('./worker.js');
 const { feature } = topojson;
+const slider = document.getElementById('circle-slider');
+const circleValue = document.getElementById('circle-value');
+
 
 // GeoJSON-Daten für die verschiedenen PLZ-Ebenen
 let geojsonData = null;    // 5-stellig
@@ -45,6 +48,13 @@ function hideLoader() {
 // --- Ende Loader-Funktionen ---
 
 // --- Dynamische Kreise Funktionen---
+
+slider.addEventListener('input', () => {
+    const radius = parseInt(slider.value);
+    circleValue.textContent = `${radius} km`;
+    requestCircles([radius]); // Llama a tu función existente
+});
+
 function addCircleLayer(map) {
     map.addSource('selection-circles', {
         type: 'geojson',
@@ -62,7 +72,7 @@ function addCircleLayer(map) {
                 5, '#007cbf',
                 10, '#2ECC40',
                 15, '#FF851B',
-                '#007cbf'
+                '#bf3600ff'
             ],
             'fill-opacity': 0.3
         }

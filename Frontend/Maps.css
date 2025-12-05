@@ -135,6 +135,17 @@ body {
   }
 }
 
+#circle-slider-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 10px;
+}
+
+#circle-slider {
+  width: 300px;
+}
+
 @media (max-width: 480px) {
   #map {
     height: 40vh;
