@@ -48,73 +48,6 @@ function hideLoader() {
 }
 // --- Ende Loader-Funktionen ---
 
-// --- Dynamische Kreise Funktionen---
-//html Elemente für Kreisauswahl
-slider.addEventListener('input', () => {
-    const radius = parseInt(slider.value);
-    circleValue.textContent = `${radius} km`;
-    requestCircles([radius]); 
-});
-//Kreis Layer hinzufügen
-function addCircleLayer(map) {
-    map.addSource('selection-circles', {
-        type: 'geojson',
-        data: { type: 'FeatureCollection', features: [] }
-    });
-      map.addLayer({
-        id: 'selection-circles-layer',
-        type: 'fill',
-        source: 'selection-circles',
-        paint: {
-          'fill-color': [
-            'interpolate', ['linear'], ['get', 'radius'],
-            1, '#2ECC40',   // Grün in kleinen Radien
-            25, '#FF851B',  // Orange in mittleren Radien
-            50, '#FF4136'   // Rot in großen Radien
-          ],
-          'fill-opacity': 0.3
-        }
-      });
-
-}
-// Kreise vom Worker anfragen
-function requestCircles(radii) {
-  const center = map.getCenter().toArray();
-  circleWorker.postMessage({ type: 'circles', center: center, radii: radii });
-}
-// Worker Antwort für Kreise verarbeiten
-circleWorker.onmessage = (e) => {
-  if (e.data.type === 'FeatureCollection') {
-    const circles = e.data;
-    map.getSource('selection-circles').setData(circles);
-    if (!geojsonData || !circles.features.length) return;
-    // Delegar selección al worker
-    circleWorker.postMessage({ type: 'selectPlzInsideCircles', circles: circles.features, plzFeatures: geojsonData.features });
-  } else {
-    // e.data ist die Liste der ausgewählten PLZ
-    const selectedPlz = e.data;
-    selectedPlz.forEach(plz => selectedPostalCodes.add(plz));
-    refreshSelectedFills();
-    updateSelectedPlzLayer();
-    updateEinwohnerSumTotal();
-    updateSelectedTagsUI();
-  }
-}
-// Aktualisieren der Kreise beim Bewegen der Karte, wenn eine Auswahl aktiv ist
-function updateCirclesOnMove() {
-    map.on('moveend', () => {
-        const activeRadius = document.querySelector('#circle-selection button.active')?.dataset.radius;
-        if (activeRadius && activeRadius !== 'none') {
-            if (activeRadius === 'all') {
-                requestCircles([5, 10, 15]);
-            } else {
-                requestCircles([parseInt(activeRadius)]);
-            }
-        }
-    });
-}
-// --- Ende der Funktionen für dynamische Kreise ---
-
 
 // Benutzerzentrum bestimmen (mit Fallback auf Berlin)
 async function getUserCenter() {
@@ -881,31 +814,58 @@ function updateSelectedTagsUI() {
 //Ende der Spatial Index Funktionen
 
 // Initialisierung der Karte
+
+// Initialisierung der Karte
 async function init() {
   const center = await getUserCenter();
+
   map = new maplibregl.Map({
     container: 'map',
     center: center,
     style: 'https://api.maptiler.com/maps/streets/style.json?key=4BNJO72dCI17waAmwZ2E',
     zoom: 10,
-    maxTileCacheSize: 200, // Erhöht den Cache für bessere Leistung
-    workerCount: 4 // Nutzt mehrere Worker für bessere Performance
+    maxTileCacheSize: 200,
+    workerCount: 4
   });
 
-map.on('load', () => {
-  console.log('Karte erfolgreich geladen!');
-//alle Layer hinzufügen
-  addPostalCodeLayers(map);
-  addStatesLayer(map);
-  addLandkreiseLayer(map);
-  addCircleLayer(map); 
-  updateCirclesOnMove(); 
-});
+  map.on('load', () => {
+    console.log('Karte erfolgreich geladen!');
+
+    // alle Layer hinzufügen (tus capas existentes)
+    addPostalCodeLayers(map);
+    addStatesLayer(map);
+    addLandkreiseLayer(map);
+
+    // --- Inicializa control de círculos ---
+    window.circlesCtl = CirclesController.init({
+      map,
+      circleWorker,               // tu Web Worker existente
+      geojsonData,                // tus features PLZ (asegúrate que esté cargado antes de usar selección)
+      selectedPostalCodes,        // Set o similar
+      refreshSelectedFills,
+      updateSelectedPlzLayer,
+      updateEinwohnerSumTotal,
+      updateSelectedTagsUI,
+
+      // Configuración (puedes ajustar)
+      followMouseEnabled: true,           // círculo sigue al mouse
+      followOnDragOnly: false,            // si prefieres que siga solo al arrastrar: true
+      deferPlzSelectionWhileMoving: true, // calcula PLZ al soltar (rendimiento)
+      mouseThrottleMs: 50,                // tiempo de throttle
+
+      // IDs del slider y controles ya en tu HTML
+      sliderId: 'circle-slider',
+      sliderValueId: 'circle-value',
+      noneButtonId: 'circle-none'
+    });
+  });
 
   map.on('error', (e) => {
     console.error('Fehler in der Karte:', e.error);
   });
 }
+
 init();
+
 
 // --- ENDE Spatial Index ---
