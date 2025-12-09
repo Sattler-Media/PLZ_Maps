@@ -36,7 +36,7 @@ async function loadCompressedTopoJSON(url, objectName) {
     return feature(topology, topology.objects[objectName]); // GeoJSON umwandeln
 }
 
-// --- Loader-Funktionen
+// Loader-Funktionen
 function showLoader(message = 'Lade Karte...') {
     const loader = document.getElementById('loader');
     document.getElementById('loader-text').textContent = message;
@@ -46,22 +46,24 @@ function showLoader(message = 'Lade Karte...') {
 function hideLoader() {
     document.getElementById('loader').style.display = 'none';
 }
-// Ende Loader-Funktionen ---
+// --- Ende Loader-Funktionen ---
 
+// --- Dynamische Kreise Funktionen---
 
-// --- Dynamische Kreise Funktionen
-//html Elemente für Kreisauswahl
 slider.addEventListener('input', () => {
     const radius = parseInt(slider.value);
     circleValue.textContent = `${radius} km`;
     requestCircles([radius]); 
 });
-//Kreis Layer hinzufügen
+
+
 function addCircleLayer(map) {
     map.addSource('selection-circles', {
         type: 'geojson',
         data: { type: 'FeatureCollection', features: [] }
     });
+
+
       map.addLayer({
         id: 'selection-circles-layer',
         type: 'fill',
@@ -69,9 +71,9 @@ function addCircleLayer(map) {
         paint: {
           'fill-color': [
             'interpolate', ['linear'], ['get', 'radius'],
-            1, '#2ECC40',   // Grün in kleinen Radien
-            25, '#FF851B',  // Orange in mittleren Radien
-            50, '#FF4136'   // Rot in großen Radien
+            1, '#2ECC40',   // verde en radios pequeños
+            25, '#FF851B',  // naranja en radios medios
+            50, '#FF4136'   // rojo en radios grandes
           ],
           'fill-opacity': 0.3
         }
@@ -92,7 +94,7 @@ circleWorker.onmessage = (e) => {
     // Delegar selección al worker
     circleWorker.postMessage({ type: 'selectPlzInsideCircles', circles: circles.features, plzFeatures: geojsonData.features });
   } else {
-    // e.data ist die Liste der ausgewählten PLZ
+    // e.data es lista de PLZ seleccionadas
     const selectedPlz = e.data;
     selectedPlz.forEach(plz => selectedPostalCodes.add(plz));
     refreshSelectedFills();
@@ -101,6 +103,8 @@ circleWorker.onmessage = (e) => {
     updateSelectedTagsUI();
   }
 }
+// HTML-Buttons für Kreise einrichten
+
 // Aktualisieren der Kreise beim Bewegen der Karte, wenn eine Auswahl aktiv ist
 function updateCirclesOnMove() {
     map.on('moveend', () => {
@@ -114,7 +118,7 @@ function updateCirclesOnMove() {
         }
     });
 }
-// Ende der Funktionen für dynamische Kreise ---
+// --- Ende der Funktionen für dynamische Kreise ---
 
 
 // Benutzerzentrum bestimmen (mit Fallback auf Berlin)
@@ -133,7 +137,7 @@ async function getUserCenter() {
   return defaultCenter;
 }
 
-// Hauptfunktion zum Hinzufügen aller PLZ-Layer ---
+// Hauptfunktion zum Hinzufügen aller PLZ-Layer
 async function addPostalCodeLayers(mapInstance) {
     try {
         showLoader('Postleitzahlen werden geladen...');
@@ -271,7 +275,7 @@ async function addLandkreiseLayer(mapInstance) {
     layout: { visibility: 'none' }
   });
 }
-// --- Ende der Funktionen für PLZ-Layer
+// --- Ende der Funktionen für PLZ-Layer---
 
 // Suchleiste Funktionalität
 document.addEventListener('DOMContentLoaded', function () {document.getElementById('search-bar').addEventListener('input', function(e) {
@@ -493,7 +497,7 @@ function select5DigitPlzByPrefix(prefix) {
       selectedPostalCodes.add(plz);
     }    
   });
-  console.log("Ausgewählte PLZ:", Array.from(selectedPostalCodes));
+  console.log("PLZ seleccionadas:", Array.from(selectedPostalCodes));
 
   refreshSelectedFills();
   updateSelectedPlzLayer();
@@ -901,6 +905,7 @@ map.on('load', () => {
   addLandkreiseLayer(map);
   addCircleLayer(map); 
   updateCirclesOnMove(); 
+
 });
 
   map.on('error', (e) => {
