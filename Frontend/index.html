@@ -117,7 +117,13 @@
 </div>  
 <!-- Karte -->  
 <div id="map"> 
-  <div class="d-grid gap-2 d-md-flex justify-content-md-end"> 
+  <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+      <!-- Liste Umkreissuche -->
+    <div id="circle-slider-container">
+      <label for="circle-slider">Radio (km): </label>
+      <input type="range" id="circle-slider" min="0" max="50" step="1" value="1">
+      <span id="circle-value">0 km</span>
+    </div> 
     <!-- 1. offcanvas Button -->
     <button class="btn btn-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasMain" aria-controls="offcanvasMain">
       Versandoptionen
@@ -126,14 +132,7 @@
     <div style="position: relative;">
       <input type="text" id="search-bar" placeholder="Stadt/Bundesland/PLZ" autocomplete="off" class="form-control" />
       <ul id="search-results" class="list-group position-absolute w-100" style="z-index: 1000;"></ul>
-    </div> 
-
-    <!-- Liste Umkreissuche -->
-    <div id="circle-slider-container">
-      <label for="circle-slider">Radio (km): </label>
-      <input type="range" id="circle-slider" min="0" max="50" step="1" value="1">
-      <span id="circle-value">0 km</span>
-    </div>
+    </div>   
         <!-- Resetknopf -->
     <button type="button" class="btn btn-outline-danger" id="clearSelections">Alle Selektionen löschen</button> 
  </div>     
@@ -142,7 +141,7 @@
   <script src="https://cdn.jsdelivr.net/npm/topojson-client@3"></script>
   <script src="https://cdn.jsdelivr.net/npm/pako@2.1.0/dist/pako.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@turf/turf@6/turf.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/rbush@2.0.2/dist/rbush.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@turf/turf@7/turf.min.js"></script>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/maplibre-gl/4.7.1/maplibre-gl.min.js"></script>
