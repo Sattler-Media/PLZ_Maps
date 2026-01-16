@@ -1,8 +1,3 @@
-
-// File: Frontend/circles.js
-// Maplibre GL und Worker Dynamische-Kreise Kontroller
-// Benutzung: CirclesController.init({ ...config... })
-
 (function (global) {
   'use strict';
 
@@ -48,6 +43,8 @@
     let isPointerDown = false;
     let lastSendTs = 0;
     let lastCirclesFC = null;
+    let geojsonRef = geojsonData || null;    
+    let lastClickTs = 0
 
     // UI Referenzen
     const slider = document.getElementById(cfg.sliderId);
@@ -98,32 +95,40 @@
 
     // Worker onmessage
     circleWorker.onmessage = (e) => {
+      console.log('[CirclesController] onmessage <-', e.data);
       if (e.data?.type === 'FeatureCollection') {
         const circles = e.data;
         lastCirclesFC = circles;
-        safeSetData(map, cfg.sourceId, circles);
-
-        const hasGeo = !!geojsonData;
-        const hasFeatures = !!(circles?.features?.length);
-        if (!hasGeo || !hasFeatures) return;
+        safeSetData(map, cfg.sourceId, circles);      
 
         // defer Bewegung wenn bewegt wird
         if (deferPlzSelectionWhileMoving && isPointerDown) return;
-
-        circleWorker.postMessage({
-          type: 'selectPlzInsideCircles',
-          circles: circles.features,
-          plzFeatures: geojsonData.features
-        });
+        
+        console.log('[CirclesController] envío selectPlzInsideCircles →', {
+              circles: circles.features.length,
+              plzFeatures: geojsonRef?.features?.length
+            });
+        
       } else {
         // e.data ist eine Liste der ausgewählten PLZ
-        const selectedPlz = e.data;
+         const selectedPlz = e.data;
+         
         if (Array.isArray(selectedPlz)) {
-          selectedPlz.forEach(plz => selectedPostalCodes?.add?.(plz));
+          const plz5 = [...new Set(selectedPlz.filter(p => /^\d{5}$/.test(p)))];          
+          const radius = lastCirclesFC?.features?.[0]?.properties?.radius ?? '?';
+          const circleTag = `Kreis ${radius}km – ${plz5.length} PLZ`; 
+
+          customSelectedTags.add(circleTag);          
+          tagPlzMap.set(circleTag, plz5); 
+
+          plz5.forEach(plz => selectedPostalCodes.add(plz));
+   
           refreshSelectedFills?.();
           updateSelectedPlzLayer?.();
           updateEinwohnerSumTotal?.();
           updateSelectedTagsUI?.();
+
+          console.log('[CircleTag] creado:', circleTag, 'PLZ:', plz5.length);
         }
       }
     };
@@ -144,20 +149,6 @@
 
     // Drag / Pointer
     map.on('mousedown', () => { isPointerDown = true; });
-    map.on('mouseup',   () => {
-      isPointerDown = false;
-      // lanzar selección diferida al soltar
-      if (deferPlzSelectionWhileMoving && lastCirclesFC && geojsonData) {
-        const features = lastCirclesFC.features || [];
-        if (features.length) {
-          circleWorker.postMessage({
-            type: 'selectPlzInsideCircles',
-            circles: features,
-            plzFeatures: geojsonData.features
-          });
-        }
-      }
-    });
 
     // Touch events
     map.on('touchstart', () => { isPointerDown = true; });
@@ -208,9 +199,27 @@
       const radius = parseInt(slider?.value || '5', 10);
       requestCircles(map, circleWorker, [radius]);
     });
+    
+    map.on('click', () => {      
+      const now = performance.now();
+        if (now - lastClickTs < 150) return; // anti‑doble click
+        lastClickTs = now;
+
+        if (!lastCirclesFC || !geojsonRef) return;
+        const features = lastCirclesFC.features || [];
+        if (!features.length) return;
+
+        circleWorker.postMessage({
+          type: 'selectPlzInsideCircles',
+          circles: features,
+          plzFeatures: geojsonRef.features
+        });
+    });
+
 
     // Veröffentliche Steuerungs-API
     return {
+      setGeojsonData(data) { geojsonRef = data; },
       enableFollowMouse() { followMouseEnabled = true; },
       disableFollowMouse() { followMouseEnabled = false; },
       enableFollowOnDragOnly() { followOnDragOnly = true; },

@@ -798,8 +798,14 @@ function updateSelectedTagsUI() {
                     plzList.forEach(plz => selectedPostalCodes.delete(plz));
                     tagPlzMap.delete(tag);
                 }
+            }else if (tag.startsWith('Kreis ')) {
+              const plzList = tagPlzMap.get(tag);
+              if (plzList) {
+                plzList.forEach(plz => selectedPostalCodes.delete(plz));
+                tagPlzMap.delete(tag);
+              }
             }
-
+            
             refreshSelectedFills();
             updateSelectedPlzLayer();
             updateEinwohnerSumTotal();
@@ -828,11 +834,11 @@ async function init() {
     workerCount: 4
   });
 
-  map.on('load', () => {
+  map.on('load', async() => {
     console.log('Karte erfolgreich geladen!');
 
     // alle Layer hinzufügen (tus capas existentes)
-    addPostalCodeLayers(map);
+    await addPostalCodeLayers(map);
     addStatesLayer(map);
     addLandkreiseLayer(map);
 
