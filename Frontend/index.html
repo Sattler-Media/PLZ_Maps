@@ -1,173 +1,251 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <link rel="stylesheet" href="Maps.css" />
-   <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">    
-    
-  <title>Preisberechnung</title> 
-    
-</head>
-<body class="p-3 m-0 border-0 bd-example m-0 border-0"> 
-<!-- Ausgewählte Tags Container -->
-  <div id="selected-tags-container" style="margin: 20px;"></div>   
-<!-- Steuerungselemente --> 
-<div id="map-controls">
-          <!-- Tabelle -->
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="stylesheet" href="Maps.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Preisberechnung</title>
+  </head>
+  <body class="p-3 m-0 border-0 bd-example m-0 border-0">
+    <!-- Ausgewählte Tags Container -->
+    <div id="selected-tags-container" style="margin: 20px"></div>
+    <!-- Steuerungselemente -->
+    <div id="map-controls">
+      <!-- Tabelle -->
       <div class="header">
-        <h1>Preisberechnung</h1> 
-      </div> 
-      <div class="footer">          
-            <h3>Ergebnisse</h3>
-            <label for="Einwohner">Einwohner:         
-            </label>
-            <input type="text" id="Einwohner" readonly/>
-            <label for="Preis">Preis:</label>
-            <input type="text" id="Preis" readonly />
-            <div id="preisFehler" style="color: red; font-size: 0.9em; margin-top: 4px;"></div>            
-      </div>   
-    <!-- 1. offcanvas -->     
-    <div class="offcanvas offcanvas-start" data-bs-backdrop="false" tabindex="-1" id="offcanvasMain" aria-labelledby="offcanvasMainLabel">
-          <div class="offcanvas-header">
-          <h2 class="offcanvas-title" id="offcanvasMainLabel">Versandoptionen</h2>
-          <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Cerrar"></button>
-          </div>
-          <div class="offcanvas-body">
-            <div class="menu">
-              <div class="options">
-                <label for="versandTyp">Versandtyp:</label>
-                  <select name="versandTyp" id="versandTyp" class="form-select">
-                    <option value="postaktuell" selected>Postaktuell</option>
-                    <option value="postwurfsp">Postwurf Spezial</option>
-                  </select>
-          
-                  <label for="gewicht">Gewicht (g):</label>
-                  <input type="number" id="gewicht" />
+        <h1>Preisberechnung</h1>
+      </div>
+      <div class="footer">
+        <h3>Ergebnisse</h3>
+        <label for="Einwohner">Einwohner: </label>
+        <input type="text" id="Einwohner" readonly />
+        <label for="Preis">Preis:</label>
+        <input type="text" id="Preis" readonly />
+        <div
+          id="preisFehler"
+          style="color: red; font-size: 0.9em; margin-top: 4px"
+        ></div>
+      </div>
+      <!-- 1. offcanvas -->
+      <div
+        class="offcanvas offcanvas-start"
+        data-bs-backdrop="false"
+        tabindex="-1"
+        id="offcanvasMain"
+        aria-labelledby="offcanvasMainLabel"
+      >
+        <div class="offcanvas-header">
+          <h2 class="offcanvas-title" id="offcanvasMainLabel">
+            Versandoptionen
+          </h2>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="offcanvas"
+            aria-label="Cerrar"
+          ></button>
+        </div>
+        <div class="offcanvas-body">
+          <div class="menu">
+            <div class="options">
+              <label for="versandTyp">Versandtyp:</label>
+              <select name="versandTyp" id="versandTyp" class="form-select">
+                <option value="postaktuell" selected>Postaktuell</option>
+                <option value="postwurfsp">Postwurf Spezial</option>
+              </select>
 
-                  <label for="einlieferung">Einlieferungsdatum:              
-                  </label>
-                  <input type="date" id="einlieferung" />
+              <label for="gewicht">Gewicht (g):</label>
+              <input type="number" id="gewicht" />
 
-                  <label for="produktVariante">Produktvariante:</label>
-                  <select id="produktVariante">
-                    <option value="1">Alle Haushalte</option>                
-                    <option value="3">Haushalte mit Tagespost</option>
-                  </select>
+              <label for="einlieferung">Einlieferungsdatum: </label>
+              <input type="date" id="einlieferung" />
 
-                  <label for="bezirksAuswahl">Bezirksauswahl:</label>
-                  <select id="bezirksAuswahl">
-                    <option value="true">Ja</option>
-                    <option value="false">Nein</option>
-                  </select>
-                  
-              </div>
+              <label for="produktVariante">Produktvariante:</label>
+              <select id="produktVariante">
+                <option value="1">Alle Haushalte</option>
+                <option value="3">Haushalte mit Tagespost</option>
+              </select>
+
+              <label for="bezirksAuswahl">Bezirksauswahl:</label>
+              <select id="bezirksAuswahl">
+                <option value="true">Ja</option>
+                <option value="false">Nein</option>
+              </select>
             </div>
           </div>
-    </div>
-    <!-- 2. offcanvas -->
-    <div class="offcanvas offcanvas-end" data-bs-backdrop="false" tabindex="-1" id="postwurfSpezialCanvas" aria-labelledby="postwurfSpezialLabel">
-      <div class="offcanvas-header">
-        <h5 class="offcanvas-title" id="postwurfSpezialLabel">Postwurf Spezial Optionen</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Cerrar"></button>
-      </div>
-      <div class="offcanvas-body">
-        <div class ="content">              
-              <div class="postwurfsp-options">
-                <label for="laenge">Länge (mm):</label>
-                <input type="number" id="laenge" />
-
-                <label for="breite">Breite (mm):</label>
-                <input type="number" id="breite" />
-
-                <label for="hoehe">Höhe (mm):</label>
-                <input type="number" id="hoehe" />
-
-                <label for="postkarte">Postkarte:</label>
-                <select id="postkarte">
-                  <option value="true">Ja</option>
-                  <option value="false">Nein</option>
-                </select>
-
-                <label for="automation">Automatisierung:</label>
-                <select id="automation">
-                  <option value="true">Ja</option>
-                  <option value="false">Nein</option>
-                </select>
-
-                <label for="frankierung">Frankierungstyp:</label>
-                <select id="frankierung">
-                  <option value="1">Frankiervermerk</option>
-                  <option value="3">DV Freimachung</option>
-                  <option value="5">Frankierservice</option>
-                  <option value="7">Plusbrief</option>
-                  <option value="10">Frankit</option>
-                  <option value="11">Postwertzeichen</option>
-                  <option value="13">Internetmarke</option>
-                </select>
-              </div>      
         </div>
-      </div>             
-    </div>    
-</div>
-   <!-- Loader -->
-<div id="loader">
-  <div class="spinner"></div>
-  <span id="loader-text">Lade Karte...</span>
-</div>  
-<!-- Karte -->  
-<div id="map"> 
-  <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-      <!-- Liste Umkreissuche -->
-    <div id="circle-slider-container">
-      <label for="circle-slider">Radio (km): </label>
-      <input type="range" id="circle-slider" min="0" max="50" step="1" value="1">
-      <span id="circle-value">0 km</span>
-    </div> 
-    <!-- 1. offcanvas Button -->
-    <button class="btn btn-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasMain" aria-controls="offcanvasMain">
-      Versandoptionen
-    </button> 
-    <!-- Searchbar und Ergebnisse -->
-    <div style="position: relative;">
-      <input type="text" id="search-bar" placeholder="Stadt/Bundesland/PLZ" autocomplete="off" class="form-control" />
-      <ul id="search-results" class="list-group position-absolute w-100" style="z-index: 1000;"></ul>
-    </div>   
+      </div>
+      <!-- 2. offcanvas -->
+      <div
+        class="offcanvas offcanvas-end"
+        data-bs-backdrop="false"
+        tabindex="-1"
+        id="postwurfSpezialCanvas"
+        aria-labelledby="postwurfSpezialLabel"
+      >
+        <div class="offcanvas-header">
+          <h5 class="offcanvas-title" id="postwurfSpezialLabel">
+            Postwurf Spezial Optionen
+          </h5>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="offcanvas"
+            aria-label="Cerrar"
+          ></button>
+        </div>
+        <div class="offcanvas-body">
+          <div class="content">
+            <div class="postwurfsp-options">
+              <label for="laenge">Länge (mm):</label>
+              <input type="number" id="laenge" />
+
+              <label for="breite">Breite (mm):</label>
+              <input type="number" id="breite" />
+
+              <label for="hoehe">Höhe (mm):</label>
+              <input type="number" id="hoehe" />
+
+              <label for="postkarte">Postkarte:</label>
+              <select id="postkarte">
+                <option value="true">Ja</option>
+                <option value="false">Nein</option>
+              </select>
+
+              <label for="automation">Automatisierung:</label>
+              <select id="automation">
+                <option value="true">Ja</option>
+                <option value="false">Nein</option>
+              </select>
+
+              <label for="frankierung">Frankierungstyp:</label>
+              <select id="frankierung">
+                <option value="1">Frankiervermerk</option>
+                <option value="3">DV Freimachung</option>
+                <option value="5">Frankierservice</option>
+                <option value="7">Plusbrief</option>
+                <option value="10">Frankit</option>
+                <option value="11">Postwertzeichen</option>
+                <option value="13">Internetmarke</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Loader -->
+    <div id="loader">
+      <div class="spinner"></div>
+      <span id="loader-text">Lade Karte...</span>
+    </div>
+    <!-- Karte -->
+    <div id="map">
+      <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+        <!-- Liste Umkreissuche -->
+        <div id="circle-slider-container">
+          <div class="form-check form-switch">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              role="switch"
+              id="switchCheckDefault"
+            />
+            <label
+              class="form-check-label"
+              for="switchCheckDefault"
+              name="toggleCircleMode"
+              >Umkreise: OFF</label
+            >
+          </div>
+          <label for="circle-slider">Radio (km): </label>
+          <input
+            type="range"
+            id="circle-slider"
+            min="0"
+            max="50"
+            step="1"
+            value="1"
+          />
+          <span id="circle-value">0 km</span>
+        </div>
+        <!-- 1. offcanvas Button -->
+        <button
+          class="btn btn-primary"
+          type="button"
+          data-bs-toggle="offcanvas"
+          data-bs-target="#offcanvasMain"
+          aria-controls="offcanvasMain"
+        >
+          Versandoptionen
+        </button>
+        <!-- Searchbar und Ergebnisse -->
+        <div style="position: relative">
+          <input
+            type="text"
+            id="search-bar"
+            placeholder="Stadt/Bundesland/PLZ"
+            autocomplete="off"
+            class="form-control"
+          />
+          <ul
+            id="search-results"
+            class="list-group position-absolute w-100"
+            style="z-index: 1000"
+          ></ul>
+        </div>
         <!-- Resetknopf -->
-    <button type="button" class="btn btn-outline-danger" id="clearSelections">Alle Selektionen löschen</button> 
- </div>     
-</div>
- <!-- Scripts -->
-  <script src="https://cdn.jsdelivr.net/npm/topojson-client@3"></script>
-  <script src="https://cdn.jsdelivr.net/npm/pako@2.1.0/dist/pako.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@turf/turf@6/turf.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/rbush@4.0.1/rbush.min.js"></script>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/maplibre-gl/4.7.1/maplibre-gl.min.js"></script>
-  <script src="Map.js"></script> 
-  <script type="module" src="preisHandler.js"></script>
-  <script type="module" src="kreise.js"></script>
-  
-  <script>
-    document.addEventListener("DOMContentLoaded", function () {
-      const versandTyp = document.getElementById("versandTyp");
-      versandTyp.addEventListener("change", function () {
-        if (versandTyp.value === "postwurfsp") {
-          const offcanvasElement = document.getElementById("postwurfSpezialCanvas");
-          const bsOffcanvas = new bootstrap.Offcanvas(offcanvasElement);
-          bsOffcanvas.show();
-        }
+        <button
+          type="button"
+          class="btn btn-outline-danger"
+          id="clearSelections"
+        >
+          Alle Selektionen löschen
+        </button>
+      </div>
+    </div>
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/topojson-client@3"></script>
+    <script src="https://cdn.jsdelivr.net/npm/pako@2.1.0/dist/pako.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@turf/turf@6/turf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/rbush@4.0.1/rbush.min.js"></script>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB"
+      crossorigin="anonymous"
+    />
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
+      crossorigin="anonymous"
+    ></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/maplibre-gl/4.7.1/maplibre-gl.min.js"></script>
+    <script src="Map.js"></script>
+    <script type="module" src="preisHandler.js"></script>
+    <script type="module" src="kreise.js"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const versandTyp = document.getElementById("versandTyp");
+        versandTyp.addEventListener("change", function () {
+          if (versandTyp.value === "postwurfsp") {
+            const offcanvasElement = document.getElementById(
+              "postwurfSpezialCanvas"
+            );
+            const bsOffcanvas = new bootstrap.Offcanvas(offcanvasElement);
+            bsOffcanvas.show();
+          }
+        });
       });
-    });
-  </script>
-  <script>
-    document.getElementById('postwurfSpezialCanvas')
-      .addEventListener('show.bs.offcanvas', async () => {
-        // Dynamisch das Modul laden
-        const module = await import('./postwurfSpezial.js');
-        module.initPostwurfSpezial();
-      });
-  </script>
-</body>
+    </script>
+    <script>
+      document
+        .getElementById("postwurfSpezialCanvas")
+        .addEventListener("show.bs.offcanvas", async () => {
+          // Dynamisch das Modul laden
+          const module = await import("./postwurfSpezial.js");
+          module.initPostwurfSpezial();
+        });
+    </script>
+  </body>
 </html>

@@ -813,6 +813,43 @@ function updateSelectedTagsUI() {
         };
 
         tagEl.appendChild(removeBtn);
+
+        if (tag.startsWith('Kreis ')) {
+
+          const plzList = tagPlzMap.get(tag);
+
+          
+if (Array.isArray(plzList) && plzList.length > 0) {
+    // 1) Ordena los códigos para una lectura limpia
+    const sorted = [...new Set(plzList)].sort();
+
+    // 2) Particiona en columnas de 5
+    const chunkSize = 5;
+    const chunks = [];
+    for (let i = 0; i < sorted.length; i += chunkSize) {
+      chunks.push(sorted.slice(i, i + chunkSize));
+    }
+
+    // 3) Crea contenedor de columnas
+    const cols = document.createElement('div');
+    cols.className = 'circle-plz-columns';
+
+    // 4) Añade cada columna (UL) con hasta 5 LI
+    chunks.forEach(group => {
+      const ul = document.createElement('ul');
+      group.forEach(plz => {
+        const li = document.createElement('li');
+        li.textContent = plz;
+        ul.appendChild(li);
+      });
+      cols.appendChild(ul);
+    });
+
+    // 5) Inyecta debajo del tag
+    tagEl.appendChild(cols);
+  }
+}
+
         container.appendChild(tagEl);
     });
   });

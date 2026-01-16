@@ -114,6 +114,49 @@ body {
   max-width: 100%;
 }
 
+.circle-plz-list {
+  margin: 5px 0 0 15px;
+  padding: 0;
+  list-style: disc;
+  color: #444;
+  font-size: 13px;
+}
+.circle-plz-list li {
+  margin-bottom: 2px;
+}
+
+/* Contenedor de columnas para la lista de PLZ del círculo */
+.circle-plz-columns {
+  display: flex;           /* ← hace que los UL se ubiquen en fila */
+  flex-direction: row;     /* ← asegura que vayan de izquierda a derecha */
+  gap: 20px;               /* ← separación entre columnas */
+  flex-wrap: nowrap;       /* ← evita que una columna salte a la línea de abajo */
+  margin: 8px 0 0 15px;    /* ← separación visual del título del tag */
+}
+
+/* Cada columna es un UL con hasta 5 elementos */
+.circle-plz-columns ul {
+  list-style: disc inside;
+  margin: 0;
+  padding: 0;
+  min-width: 120px;        /* ← ancho mínimo para que no se aplasten */
+}
+
+/* Ítems dentro de cada columna */
+.circle-plz-columns li {
+  font-family: monospace;
+  margin: 2px 0;
+}
+
+
+/* (Opcional) limitar la altura y habilitar scroll si hay muchas PLZ */
+.selected-tag .circle-plz-columns {
+  max-height: 220px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+
 /* Media Queries para pantallas pequeñas */
 @media (max-width: 768px) {
   #map {

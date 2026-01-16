@@ -15,6 +15,7 @@
 
   function init(options) {
     const cfg = Object.assign({}, DEFAULTS, options || {});
+    
     const {
       map,
       circleWorker,
@@ -45,15 +46,33 @@
     let lastCirclesFC = null;
     let geojsonRef = geojsonData || null;    
     let lastClickTs = 0
+    let circleModeEnabled = false;
 
     // UI Referenzen
     const slider = document.getElementById(cfg.sliderId);
     const circleValue = document.getElementById(cfg.sliderValueId);
-    const btnNone = document.getElementById(cfg.noneButtonId);
+    const btnNone = document.getElementById(cfg.noneButtonId);    
+    const circleSwitch = document.getElementById('switchCheckDefault');
+    const circleLabel = document.querySelector('label[for="switchCheckDefault"]');
+
 
     if (!slider || !circleValue) {
       console.warn('[CirclesController] slider oder label nicht gefunden. Überprüfe IDs:', cfg.sliderId, cfg.sliderValueId);
     }
+    // Toggle Kreismodus       
+    circleSwitch.addEventListener('change', () => {
+
+      circleModeEnabled = circleSwitch.checked;
+
+      circleLabel.textContent = circleModeEnabled ? 'Umkreise: ON' : 'Umkreise: OFF';
+
+      if (!circleModeEnabled) {        
+        safeSetData(map, cfg.sourceId, { type: 'FeatureCollection', features: [] });
+      }
+
+      console.log('[CirclesController] circleModeEnabled =', circleModeEnabled);
+    });
+
 
     // Cursor (visuell)
     try { map.getCanvas().style.cursor = 'pointer'; } catch (e) {}
@@ -135,6 +154,7 @@
 
     // Mausbewegung (folgt dem Zeiger)
     map.on('mousemove', (e) => {
+      if (!circleModeEnabled) return
       if (!followMouseEnabled || !circleSelectionEnabled) return;
       if (followOnDragOnly && !isPointerDown) return;
 
@@ -204,6 +224,8 @@
       const now = performance.now();
         if (now - lastClickTs < 150) return; // anti‑doble click
         lastClickTs = now;
+
+        if (!circleModeEnabled) return;
 
         if (!lastCirclesFC || !geojsonRef) return;
         const features = lastCirclesFC.features || [];
