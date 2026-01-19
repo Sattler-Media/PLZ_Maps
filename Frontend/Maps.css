@@ -65,7 +65,7 @@ body {
   max-width: 90%;
 }
 
-/* Resultados de búsqueda */
+/* Suchergebnisse */
 #search-results {
   max-height: 300px;
   overflow-y: auto;
@@ -87,7 +87,7 @@ body {
   background-color: #f1f1f1;
 }
 
-/* Tags seleccionados */
+/* Ausgewählte Tags */
 .selected-tag {
   display: inline-block;
   background-color: #f0f0f0;
@@ -106,7 +106,7 @@ body {
   font-weight: bold;
 }
 
-/* Opciones y footer */
+/* Optionen und Fußzeile */
 .options, .postwurfsp-options, .footer {
   display: flex;
   flex-direction: column;
@@ -125,31 +125,31 @@ body {
   margin-bottom: 2px;
 }
 
-/* Contenedor de columnas para la lista de PLZ del círculo */
+/* Spaltenbehälter für die Kreis-PLZ-Liste */
 .circle-plz-columns {
-  display: flex;           /* ← hace que los UL se ubiquen en fila */
-  flex-direction: row;     /* ← asegura que vayan de izquierda a derecha */
-  gap: 20px;               /* ← separación entre columnas */
-  flex-wrap: nowrap;       /* ← evita que una columna salte a la línea de abajo */
-  margin: 8px 0 0 15px;    /* ← separación visual del título del tag */
+  display: flex;           /* ← macht ULs zeilenweise */
+  flex-direction: row;     /* ← sorgt dafür, dass sie von links nach rechts gehen */
+  gap: 20px;               /* ← Abstand zwischen Spalten */
+  flex-wrap: nowrap;       /* ← verhindert, dass eine Spalte auf die nächste Zeile springt */
+  margin: 8px 0 0 15px;    /* ← visueller Abstand vom Tag-Titel */
 }
 
-/* Cada columna es un UL con hasta 5 elementos */
+/* Jede Spalte ist ein UL mit bis zu 5 Elementen */
 .circle-plz-columns ul {
   list-style: disc inside;
   margin: 0;
   padding: 0;
-  min-width: 120px;        /* ← ancho mínimo para que no se aplasten */
+  min-width: 120px;        /* ← Mindestbreite, damit sie nicht zerquetscht werden */
 }
 
-/* Ítems dentro de cada columna */
+/* Elemente in jeder Spalte */
 .circle-plz-columns li {
   font-family: monospace;
   margin: 2px 0;
 }
 
 
-/* (Opcional) limitar la altura y habilitar scroll si hay muchas PLZ */
+/* (Optional) Höhe begrenzen und Scrollen aktivieren, falls viele PLZ */
 .selected-tag .circle-plz-columns {
   max-height: 220px;
   overflow-y: auto;
@@ -157,7 +157,7 @@ body {
 }
 
 
-/* Media Queries para pantallas pequeñas */
+/* Medienabfragen für kleine Bildschirme */
 @media (max-width: 768px) {
   #map {
     width: 100%;

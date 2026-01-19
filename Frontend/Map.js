@@ -29,11 +29,11 @@ async function loadCompressedTopoJSON(url, objectName) {
 
     
   if (!topology.objects[objectName]) {
-    console.error(`Objeto ${objectName} no encontrado en TopoJSON`);
+    console.error(`Objekt ${objectName} nicht in TopoJSON gefunden`);
     return null;
   }
 
-    return feature(topology, topology.objects[objectName]); // GeoJSON umwandeln
+    return feature(topology, topology.objects[objectName]); // In GeoJSON konvertieren
 }
 
 // Loader-Funktionen
@@ -70,7 +70,7 @@ async function addPostalCodeLayers(mapInstance) {
     try {
         showLoader('Postleitzahlen werden geladen...');
 
-        // Cargar todas las capas en paralelo
+        // Alle Schichten parallel laden
       
         const [plz5, plz3, plz2] = await Promise.all([
             loadCompressedTopoJSON('./Json/plz-5stellig.json.gz', 'plz-5stellig'),
@@ -84,7 +84,7 @@ async function addPostalCodeLayers(mapInstance) {
 
         buildPlzSpatialIndex();
 
-        // Añadir PLZ-5
+        // PLZ-5 hinzufügen
         mapInstance.addSource('postal-codes-germany', { type: 'geojson', data: geojsonData });
         mapInstance.addLayer({
             id: 'PLZ-fill',
@@ -99,7 +99,7 @@ async function addPostalCodeLayers(mapInstance) {
         mapInstance.addLayer({ id: 'PLZ-borders', type: 'line', source: 'postal-codes-germany', paint: { 'line-color': '#990000', 'line-width': 1.5 }, minzoom: 9.5 });
         mapInstance.addLayer({ id: 'PLZ-labels', type: 'symbol', source: 'postal-codes-germany', layout: { 'text-field': ['get', 'plz'], 'text-size': 12 }, paint: { 'text-color': 'red', 'text-halo-color': 'white', 'text-halo-width': 2 }, minzoom: 9.5 });
 
-        // Añadir PLZ-3
+        // PLZ-3 hinzufügen
         mapInstance.addSource('postal-codes-germany-3', { type: 'geojson', data: geojsonData3 });
         mapInstance.addLayer({
             id: 'PLZ3-fill',
@@ -115,7 +115,7 @@ async function addPostalCodeLayers(mapInstance) {
         mapInstance.addLayer({ id: 'PLZ3-borders', type: 'line', source: 'postal-codes-germany-3', paint: { 'line-color': '#0074D9', 'line-width': 1.5 }, minzoom: 8, maxzoom: 9.5 });
         mapInstance.addLayer({ id: 'PLZ3-labels', type: 'symbol', source: 'postal-codes-germany-3', layout: { 'text-field': ['get', 'plz'], 'text-size': 14 }, paint: { 'text-color': 'blue', 'text-halo-color': 'white', 'text-halo-width': 2 }, minzoom: 8, maxzoom: 9.5 });
 
-        // Añadir PLZ-2
+        // PLZ-2 hinzufügen
         mapInstance.addSource('postal-codes-germany-2', { type: 'geojson', data: geojsonData2 });
         mapInstance.addLayer({
             id: 'PLZ2-fill',
@@ -135,7 +135,7 @@ async function addPostalCodeLayers(mapInstance) {
         mapInstance.addSource('plz-selected', { type: 'geojson', data: { type: 'FeatureCollection', features: [] } });
         mapInstance.addLayer({ id: 'PLZ-selected', type: 'fill', source: 'plz-selected', paint: { 'fill-color': '#FFD700', 'fill-opacity': 0.6 }, minzoom: 0, maxzoom: 24 });
 
-        // Eventos
+        // Ereignisse
         mapInstance.on('click', 'PLZ-fill', onPlzFillClick);
         mapInstance.on('click', 'PLZ2-fill', onPlz2FillClick);
         mapInstance.on('click', 'PLZ3-fill', onPlz3FillClick);
@@ -437,6 +437,8 @@ function select5DigitPlzByPrefix(prefix) {
 //Layer Funktionalität und Hauptkontrolle der Karte
 // Klick-Handler für PLZ-5stellig
 function onPlzFillClick(e) {
+    if (window.circleModeEnabled) return;
+
     if (!geojsonData) {
         showLoader('Postleitzahlen werden geladen...');
         return;
@@ -446,11 +448,11 @@ function onPlzFillClick(e) {
     const tag = `PLZ: ${postalCode}`;
 
     if (customSelectedTags.has(tag)) {
-        // Deseleccionar
+        // Abwählen
         customSelectedTags.delete(tag);
         selectedPostalCodes.delete(postalCode);
     } else {
-        // Seleccionar
+        // Auswählen
         select5DigitPlzByPrefix(postalCode);        
         customSelectedTags.add(tag);
     }
@@ -462,6 +464,7 @@ function onPlzFillClick(e) {
 }
 // Klick-Handler für PLZ-3stellig
 function onPlz3FillClick(e) {
+    if (window.circleModeEnabled) return;
 
     if (!geojsonData) {
             showLoader('Postleitzahlen werden geladen...');
@@ -472,15 +475,15 @@ function onPlz3FillClick(e) {
     const tag = `PLZ3: ${postalCode3}`;
 
     if (customSelectedTags.has(tag)) {
-        // Deseleccionar
+        // Abwählen
         customSelectedTags.delete(tag);
         selectedPostalCodes3.delete(postalCode3);
-        // Eliminar todos los PLZ de 5 dígitos que empiezan con este prefijo
+        // Entferne alle 5-stelligen PLZ, die mit diesem Präfix beginnen
         Array.from(selectedPostalCodes).forEach(code => {
             if (code.startsWith(postalCode3)) selectedPostalCodes.delete(code);
         });
     } else {
-        // Seleccionar
+        // Auswählen
         select5DigitPlzByPrefix(postalCode3);
         selectedPostalCodes3.add(postalCode3);
         customSelectedTags.add(tag);
@@ -493,6 +496,8 @@ function onPlz3FillClick(e) {
 }
 // Klick-Handler für PLZ-2stellig
 function onPlz2FillClick(e) {
+    if (window.circleModeEnabled) return;
+
     if (!geojsonData) {
             showLoader('Postleitzahlen werden geladen...');
             return;
@@ -502,15 +507,15 @@ function onPlz2FillClick(e) {
     const tag = `PLZ2: ${postalCode2}`;
 
     if (customSelectedTags.has(tag)) {
-        // Deseleccionar
+        // Abwählen
         customSelectedTags.delete(tag);
         selectedPostalCodes2.delete(postalCode2);
-        // Eliminar todos los PLZ de 5 dígitos que empiezan con este prefijo
+        // Entferne alle 5-stelligen PLZ, die mit diesem Präfix beginnen
         Array.from(selectedPostalCodes).forEach(code => {
             if (code.startsWith(postalCode2)) selectedPostalCodes.delete(code);
         });
     } else {
-        // Seleccionar
+        // Auswählen
         select5DigitPlzByPrefix(postalCode2);
         selectedPostalCodes2.add(postalCode2);
         customSelectedTags.add(tag);
@@ -590,16 +595,16 @@ function updateSelectedPlzLayer() {
 function updateEinwohnerSumTotal() {
   let einwohnerSum = 0;
 
-  // Convertimos a Set para consultas rápidas
+  // Konvertiere zu Set für schnelle Abfragen
   const sel5 = new Set(selectedPostalCodes);
   const sel3 = new Set(selectedPostalCodes3);
   const sel2 = new Set(selectedPostalCodes2);
 
-  // Auxiliares: ¿PLZ está cubierto por un prefijo de nivel superior?
+  // Hilfsfunktion: Ist eine PLZ durch einen Präfix auf höherer Ebene abgedeckt?
   const isCoveredBy3 = plz5 => Array.from(sel3).some(pref3 => plz5.startsWith(pref3));
   const isCoveredBy2 = plzX => Array.from(sel2).some(pref2 => plzX.startsWith(pref2));
 
-  // Sumar PLZ-5 (solo si no está cubierto por prefijos 3 o 2)
+  // PLZ-5 summieren (nur wenn nicht durch 3- oder 2-stellige Präfixe abgedeckt)
   if (geojsonData && geojsonData.features) {
     for (const feature of geojsonData.features) {
       const plz = feature.properties.plz;
@@ -609,7 +614,7 @@ function updateEinwohnerSumTotal() {
     }
   }
 
-  // Sumar PLZ-3 (solo si no está cubierto por prefijos 2)
+  // PLZ-3 summieren (nur wenn nicht durch 2-stellige Präfixe abgedeckt)
   if (geojsonData3 && geojsonData3.features) {
     for (const feature of geojsonData3.features) {
       const plz3 = feature.properties.plz;
@@ -619,7 +624,7 @@ function updateEinwohnerSumTotal() {
     }
   }
 
-  // Sumar PLZ-2 (siempre que esté seleccionado)
+  // PLZ-2 summieren (immer wenn ausgewählt)
   if (geojsonData2 && geojsonData2.features) {
     for (const feature of geojsonData2.features) {
       const plz2 = feature.properties.plz;
@@ -694,9 +699,9 @@ function selectPlz5InsideRegion(regionFeature, options = {}) {
     const newSelected = [];
     const regionBbox = turf.bbox(regionFeature);
 
-    // Auxiliar: determina si una PLZ solapa >= umbral con la región (misma lógica para todos)
+    // Hilfsfunktion: Bestimmt, ob eine PLZ mindestens einen Schwellenwert mit der Region überlappt (gleiche Logik für alle)
     const qualifies = (plzFeature) => {
-        // Filtro rápido por bbox para evitar intersectar todo
+        // Schnelle Filterung durch BBox, um nicht alles zu schneiden
         const plzBbox = turf.bbox(plzFeature);
         const bboxOverlaps =
             plzBbox[0] <= regionBbox[2] && plzBbox[2] >= regionBbox[0] &&
@@ -711,7 +716,7 @@ function selectPlz5InsideRegion(regionFeature, options = {}) {
     };
 
     if (plzSpatialIndex) {
-        // Índice: buscar candidatos por bbox de la región
+        // Index: Kandidaten nach Regions-BBox suchen
         const candidates = plzSpatialIndex.search({
             minX: regionBbox[0],
             minY: regionBbox[1],
@@ -730,7 +735,7 @@ function selectPlz5InsideRegion(regionFeature, options = {}) {
             }
         });
     } else {
-        // Fallback PRECISO sin índice: misma lógica (intersección + ratio), sin centroides
+        // Fallback GENAU ohne Index: gleiche Logik (Schnitt + Verhältnis), ohne Schwerpunkte
         if (!geojsonData || !geojsonData.features) return [];
 
         geojsonData.features.forEach(f => {
@@ -820,7 +825,7 @@ function updateSelectedTagsUI() {
 
           
 if (Array.isArray(plzList) && plzList.length > 0) {
-    // 1) Ordena los códigos para una lectura limpia
+    // 1) Sortiert die Codes für sauberes Lesen
     const sorted = [...new Set(plzList)].sort();
 
     // 2) Particiona en columnas de 5
@@ -834,7 +839,7 @@ if (Array.isArray(plzList) && plzList.length > 0) {
     const cols = document.createElement('div');
     cols.className = 'circle-plz-columns';
 
-    // 4) Añade cada columna (UL) con hasta 5 LI
+    // 4) Fügt jede Spalte (UL) mit bis zu 5 LI hinzu
     chunks.forEach(group => {
       const ul = document.createElement('ul');
       group.forEach(plz => {
@@ -879,19 +884,19 @@ async function init() {
     addStatesLayer(map);
     addLandkreiseLayer(map);
 
-    // --- Inicializa control de círculos ---
+    // --- Initialisiert die Kreissteuerung ---
     window.circlesCtl = CirclesController.init({
       map,
       circleWorker,               // tu Web Worker existente
-      geojsonData,                // tus features PLZ (asegúrate que esté cargado antes de usar selección)
+      geojsonData,                // Deine PLZ-Features (stelle sicher, dass sie vor Benutzung der Auswahl geladen sind)
       selectedPostalCodes,        // Set o similar
       refreshSelectedFills,
       updateSelectedPlzLayer,
       updateEinwohnerSumTotal,
       updateSelectedTagsUI,
 
-      // Configuración (puedes ajustar)
-      followMouseEnabled: true,           // círculo sigue al mouse
+      // Konfiguration (kannst du anpassen)
+      followMouseEnabled: true,           // Kreis folgt der Maus
       followOnDragOnly: false,            // si prefieres que siga solo al arrastrar: true
       deferPlzSelectionWhileMoving: true, // calcula PLZ al soltar (rendimiento)
       mouseThrottleMs: 50,                // tiempo de throttle

@@ -62,8 +62,9 @@
     // Toggle Kreismodus       
     circleSwitch.addEventListener('change', () => {
 
-      circleModeEnabled = circleSwitch.checked;
 
+      circleModeEnabled = circleSwitch.checked;
+      window.circleModeEnabled = circleModeEnabled;
       circleLabel.textContent = circleModeEnabled ? 'Umkreise: ON' : 'Umkreise: OFF';
 
       if (!circleModeEnabled) {        
@@ -129,26 +130,43 @@
             });
         
       } else {
-        // e.data ist eine Liste der ausgewählten PLZ
-         const selectedPlz = e.data;
-         
-        if (Array.isArray(selectedPlz)) {
-          const plz5 = [...new Set(selectedPlz.filter(p => /^\d{5}$/.test(p)))];          
-          const radius = lastCirclesFC?.features?.[0]?.properties?.radius ?? '?';
-          const circleTag = `Kreis ${radius}km – ${plz5.length} PLZ`; 
+          const selectedPlz = e.data;
 
-          customSelectedTags.add(circleTag);          
-          tagPlzMap.set(circleTag, plz5); 
+          if (Array.isArray(selectedPlz)) {
+            // 1) Mantén solo PLZ de 5 dígitos y quita duplicados
+            const rawPlz5 = [...new Set(selectedPlz.filter(p => /^\d{5}$/.test(p)))];
 
-          plz5.forEach(plz => selectedPostalCodes.add(plz));
-   
-          refreshSelectedFills?.();
-          updateSelectedPlzLayer?.();
-          updateEinwohnerSumTotal?.();
-          updateSelectedTagsUI?.();
+            // 2) Excluir las PLZ que ya están seleccionadas (exactamente PLZ-5)
+            //    Nota: si prefieres también excluir las cubiertas por PLZ3/PLZ2, mira la sección "Opcional" más abajo.
+            const newPlz5 = rawPlz5.filter(p => !selectedPostalCodes.has(p));
 
-          console.log('[CircleTag] creado:', circleTag, 'PLZ:', plz5.length);
-        }
+            // Log útil (opcional)
+            const yaHabia = rawPlz5.length - newPlz5.length;
+            console.log(`[CirclesController] Círculo: ${newPlz5.length} nuevas, ${yaHabia} ya estaban seleccionadas.`);
+
+            // 3) Si no hay nada nuevo, no crear tag ni tocar sets
+            if (newPlz5.length === 0) {
+              updateSelectedTagsUI?.();
+              return;
+            }
+
+            // 4) Crear el TAG con el formato pedido "Kreis {r}km – {n} PLZ"
+            const radius = lastCirclesFC?.features?.[0]?.properties?.radius ?? '?';
+            const circleTag = `Kreis ${radius}km – ${newPlz5.length} PLZ`;
+
+            // 5) Registrar el tag y sus PLZ "nuevas"
+            customSelectedTags.add(circleTag);
+            tagPlzMap.set(circleTag, newPlz5);
+
+            // 6) Añadir SOLO las PLZ nuevas a la selección global
+            newPlz5.forEach(plz => selectedPostalCodes.add(plz));
+
+            // 7) Actualizar UI/capas
+            refreshSelectedFills?.();
+            updateSelectedPlzLayer?.();
+            updateEinwohnerSumTotal?.();
+            updateSelectedTagsUI?.();
+          }
       }
     };
 

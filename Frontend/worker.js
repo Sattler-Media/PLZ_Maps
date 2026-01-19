@@ -27,8 +27,8 @@ self.onmessage = (e) => {
 if (type === 'selectPlzInsideCircles') {
   const { circles, plzFeatures } = e.data;
 
-  // Cache simple de bbox por feature (se guarda en la propia feature)
-  // para no recalcular bbox en cada click.
+  // Einfacher BBox-Cache pro Feature (wird im Feature selbst gespeichert)
+  // um die BBox bei jedem Klick nicht neu zu berechnen.
   for (const f of plzFeatures) {
     if (!f.__bbox) {
       try { f.__bbox = turf.bbox(f); } catch (e) { f.__bbox = null; }
@@ -50,23 +50,23 @@ if (type === 'selectPlzInsideCircles') {
     for (const plzFeature of plzFeatures) {
       if (!plzFeature?.geometry || !plzFeature.__bbox) continue;
 
-      // 1) Prefiltro rápido por BBOX (skip 90%+)
+      // 1) Schnelle Vorfilterung durch BBOX (überspringt 90%+)
       const b = plzFeature.__bbox; // [minX,minY,maxX,maxY]
       if (
         !circleBbox ||
-        b[0] > circleBbox[2] || b[2] < circleBbox[0] || // no overlap en X
-        b[1] > circleBbox[3] || b[3] < circleBbox[1]    // no overlap en Y
+        b[0] > circleBbox[2] || b[2] < circleBbox[0] || // keine Überlappung in X
+        b[1] > circleBbox[3] || b[3] < circleBbox[1]    // keine Überlappung in Y
       ) {
         continue;
       }
 
-      // 2) Una sola prueba geométrica: "tocan o se superponen"
+      // 2) Ein einziger geometrischer Test: "berührt oder überlappt"
       try {
         if (turf.booleanIntersects(circle, plzFeature)) {
           selectedPlz.add(plzFeature.properties.plz);
         }
       } catch (err) {
-        // Evita que errores con MultiPolygon o geometrías inválidas rompan la selección
+        // Verhindert, dass Fehler mit MultiPolygon oder ungültigen Geometrien die Auswahl unterbrechen
         // console.warn('[worker] booleanIntersects error:', err.message);
         continue;
       }
